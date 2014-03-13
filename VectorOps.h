@@ -18,7 +18,7 @@
 #endif
 
 #include <cstring>
-#include "sysutils.h"
+#include "system/sysutils.h"
 
 namespace BreakfastQuay {
 

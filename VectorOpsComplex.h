@@ -10,14 +10,6 @@
 namespace BreakfastQuay {
 
 #ifndef NO_COMPLEX_TYPES
-typedef double bq_complex_element_t;
-typedef struct {
-    bq_complex_element_t re;
-    bq_complex_element_t im;
-} bq_complex_t;
-#endif
-
-#ifndef NO_COMPLEX_TYPES
 
 template<> 
 inline void v_zero(bq_complex_t *const R__ ptr, 
