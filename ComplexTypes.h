@@ -4,7 +4,7 @@
 #ifndef BQ_COMPLEX_TYPES_H
 #define BQ_COMPLEX_TYPES_H
 
-namespace BreakfastQuay {
+namespace breakfastquay {
 
 #ifndef NO_COMPLEX_TYPES
 // Convertible with other complex types that store re+im consecutively

@@ -7,7 +7,7 @@
 #include "VectorOps.h"
 #include "ComplexTypes.h"
 
-namespace BreakfastQuay {
+namespace breakfastquay {
 
 #ifndef NO_COMPLEX_TYPES
 

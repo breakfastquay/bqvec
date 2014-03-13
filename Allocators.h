@@ -27,7 +27,7 @@
 namespace std { struct bad_alloc { }; }
 #endif
 
-namespace BreakfastQuay {
+namespace breakfastquay {
 
 template <typename T>
 T *allocate(size_t count)

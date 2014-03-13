@@ -20,7 +20,7 @@
 #include <cstring>
 #include "system/sysutils.h"
 
-namespace BreakfastQuay {
+namespace breakfastquay {
 
 // Note that all functions with a "target" vector have their arguments
 // in the same order as memcpy and friends, i.e. target vector first.

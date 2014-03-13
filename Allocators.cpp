@@ -11,7 +11,7 @@
 using std::cerr;
 using std::endl;
 
-namespace BreakfastQuay {
+namespace breakfastquay {
 
 #ifdef HAVE_IPP
 

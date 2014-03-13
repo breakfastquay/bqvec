@@ -15,7 +15,7 @@
 #endif
 #endif
 
-namespace BreakfastQuay {
+namespace breakfastquay {
 
 #ifdef USE_APPROXIMATE_ATAN2
 float approximate_atan2f(float real, float imag)
