@@ -18,7 +18,8 @@
 #endif
 
 #include <cstring>
-#include "system/sysutils.h"
+
+#include "Restrict.h"
 
 namespace breakfastquay {
 

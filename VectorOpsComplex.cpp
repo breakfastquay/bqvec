@@ -3,8 +3,6 @@
 
 #include "VectorOpsComplex.h"
 
-#include "system/sysutils.h"
-
 #include <cassert>
 
 #if defined USE_POMMIER_MATHFUN
