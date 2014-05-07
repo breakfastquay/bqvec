@@ -164,8 +164,8 @@ inline void v_add(bq_complex_t *const R__ dst,
 template<>
 inline void v_add_with_gain(bq_complex_t *const R__ dst,
                             const bq_complex_t *const R__ src,
-                            const int count,
-                            const bq_complex_element_t gain)
+                            const bq_complex_element_t gain,
+                            const int count)
 {
     for (int i = 0; i < count; ++i) {
         dst[i].re += src[i].re * gain;

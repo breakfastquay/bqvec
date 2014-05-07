@@ -23,72 +23,121 @@
 
 namespace breakfastquay {
 
-// Note that all functions with a "target" vector have their arguments
-// in the same order as memcpy and friends, i.e. target vector first.
-// This is the reverse order from the IPP functions.
+/**
+ * General principle:
+ * 
+ * Write basic vector-manipulation loops in such a way as to promote
+ * the likelihood that a good current C++ compiler can auto-vectorize
+ * them (e.g. gcc-4.x with -ftree-vectorize). Provide calls out to
+ * supported vector libraries (e.g. IPP, Accelerate) where useful.
+ * No intrinsics or assembly.
+ *
+ * Argument ordering:
+ *
+ * If a function operates on one or more vector sequences in memory,
+ * they appear as pointers at the start of the argument list. If one
+ * vector is the "destination", it appears first, with "source" second
+ * if present (i.e. argument ordering follows memcpy).
+ * 
+ * The final argument is always a count of the number of elements in
+ * each vector. 
+ *
+ * Some functions operate on a set of vectors at once: their names all
+ * contain the text _channels, and the number of channels (i.e. number
+ * of vectors) is the argument before last.
+ *
+ * Any additional arguments, e.g. scale factors, appear between the
+ * vector pointers at the start and the counts at the end.
+ *
+ * The caller takes responsibility for ensuring that vector pointer
+ * arguments are not aliased, i.e. that vectors provided as separate
+ * arguments to the same function are distinct and do not overlap,
+ * except where documented.
+ */
 
-// The ideal here is to write the basic loops in such a way as to be
-// auto-vectorizable by a sensible compiler (definitely gcc-4.3 on
-// Linux, ideally also gcc-4.0 on OS/X).
-
+/**
+ * v_zero
+ *
+ * Zero the elements in the given vector, of length \arg count.
+ */
 template<typename T>
-inline void v_zero(T *const R__ ptr,
+inline void v_zero(T *const R__ vec,
                    const int count)
 {
     const T value = T(0);
     for (int i = 0; i < count; ++i) {
-        ptr[i] = value;
+        vec[i] = value;
     }
 }
 
 #if defined HAVE_IPP
 template<> 
-inline void v_zero(float *const R__ ptr, 
+inline void v_zero(float *const R__ vec, 
                    const int count)
 {
-    ippsZero_32f(ptr, count);
+    ippsZero_32f(vec, count);
 }
 template<> 
-inline void v_zero(double *const R__ ptr,
+inline void v_zero(double *const R__ vec,
                    const int count)
 {
-    ippsZero_64f(ptr, count);
+    ippsZero_64f(vec, count);
 }
 #elif defined HAVE_VDSP
 template<> 
-inline void v_zero(float *const R__ ptr, 
+inline void v_zero(float *const R__ vec, 
                    const int count)
 {
-    vDSP_vclr(ptr, 1, count);
+    vDSP_vclr(vec, 1, count);
 }
 template<> 
-inline void v_zero(double *const R__ ptr,
+inline void v_zero(double *const R__ vec,
                    const int count)
 {
-    vDSP_vclrD(ptr, 1, count);
+    vDSP_vclrD(vec, 1, count);
 }
 #endif
 
+/**
+ * v_zero_channels
+ *
+ * Zero the elements in the given set of \arg channels vectors, each
+ * of length \arg count.
+ */
 template<typename T>
-inline void v_zero_channels(T *const R__ *const R__ ptr,
+inline void v_zero_channels(T *const R__ *const R__ vec,
                             const int channels,
                             const int count)
 {
     for (int c = 0; c < channels; ++c) {
-        v_zero(ptr[c], count);
+        v_zero(vec[c], count);
     }
 }
 
+/**
+ * v_set
+ *
+ * Set all of the elements in the given vector, of length \arg count,
+ * to \arg value.
+ */
 template<typename T>
-inline void v_set(T *const R__ ptr,
+inline void v_set(T *const R__ vec,
                   const T value,
                   const int count)
 {
     for (int i = 0; i < count; ++i) {
-        ptr[i] = value;
+        vec[i] = value;
     }
 }
 
+/**
+ * v_copy
+ *
+ * Copy the contents of the vector \arg src to the vector \arg dst,
+ * both of length \arg count.
+ *
+ * Caller guarantees that \arg src and \arg dst are non-overlapping.
+ */
 template<typename T>
 inline void v_copy(T *const R__ dst,
                    const T *const R__ src,
@@ -116,6 +165,16 @@ inline void v_copy(double *const R__ dst,
 }
 #endif
 
+/**
+ * v_copy_channels
+ *
+ * Copy the contents of the individual vectors in the set \arg src to
+ * the corresponding vectors in the set \arg dst. All vectors have
+ * length \arg count and there are \arg channels vectors in each set.
+ *
+ * Caller guarantees that all of the \arg src and \arg dst vectors are
+ * non-overlapping with each other.
+ */
 template<typename T>
 inline void v_copy_channels(T *const R__ *const R__ dst,
                             const T *const R__ *const R__ src,
@@ -127,10 +186,16 @@ inline void v_copy_channels(T *const R__ *const R__ dst,
     }
 }
 
-// src and dst alias by definition, so not restricted
+/**
+ * v_move
+ *
+ * Copy the contents of vector \arg src to the vector \arg dst, both
+ * of length \arg count. The two vectors may overlap. (If you know
+ * that they cannot overlap, use v_copy instead.)
+ */
 template<typename T>
-inline void v_move(T *const dst,
-                   const T *const src,
+inline void v_move(T *const dst,       // not R__ (aliased)
+                   const T *const src, // not R__ (aliased)
                    const int count)
 {
     memmove(dst, src, count * sizeof(T));
@@ -153,6 +218,16 @@ inline void v_move(double *const dst,
 }
 #endif
 
+/**
+ * v_convert
+ *
+ * Copy the contents of vector \arg src to the vector \arg dst, both
+ * of length \arg count. The two vectors may have different value
+ * types, e.g. double and float. If they have the same type, this is
+ * equivalent to v_copy.
+ *
+ * Caller guarantees that \arg src and \arg dst are non-overlapping.
+ */
 template<typename T, typename U>
 inline void v_convert(U *const R__ dst,
                       const T *const R__ src,
@@ -210,6 +285,19 @@ inline void v_convert(float *const R__ dst,
 }
 #endif
 
+/**
+ * v_convert_channels
+ *
+ * Copy the contents of the individual vectors in the set \arg src to
+ * the corresponding vectors in the set \arg dst. All vectors have
+ * length \arg count, and there are \arg channels vectors in each
+ * set. The source and destination vectors may have different value
+ * types, e.g. double and float. If they have the same type, this is
+ * equivalent to v_copy_channels.
+ *
+ * Caller guarantees that all of the \arg src and \arg dst vectors are
+ * non-overlapping with each other.
+ */
 template<typename T, typename U>
 inline void v_convert_channels(U *const R__ *const R__ dst,
                                const T *const R__ *const R__ src,
@@ -221,6 +309,15 @@ inline void v_convert_channels(U *const R__ *const R__ dst,
     }
 }
 
+/**
+ * v_add
+ *
+ * Add the elements in the vector \arg src to the corresponding
+ * elements in the vector \arg dst, both of length arg \count, leaving
+ * the result in \arg dst.
+ *
+ * Caller guarantees that \arg src and \arg dst are non-overlapping.
+ */
 template<typename T>
 inline void v_add(T *const R__ dst,
                   const T *const R__ src,
@@ -231,6 +328,12 @@ inline void v_add(T *const R__ dst,
     }
 }
 
+/**
+ * v_add
+ *
+ * Add the constant \arg value to every element of the vector \arg
+ * dst, of length arg \count, leaving the result in \arg dst.
+ */
 template<typename T>
 inline void v_add(T *const R__ dst,
                   const T value,
@@ -257,6 +360,17 @@ inline void v_add(double *const R__ dst,
 }    
 #endif
 
+/**
+ * v_add_channels
+ *
+ * Add the elements in the individual vectors in the set \arg src to
+ * the corresponding elements of the corresponding vectors in \arg
+ * dst, leaving the results in \arg dst. All vectors have length \arg
+ * count, and there are \arg channels vectors in each set.
+ *
+ * Caller guarantees that all of the \arg src and \arg dst vectors are
+ * non-overlapping with each other.
+ */
 template<typename T>
 inline void v_add_channels(T *const R__ *const R__ dst,
                            const T *const R__ *const R__ src,
@@ -267,26 +381,48 @@ inline void v_add_channels(T *const R__ *const R__ dst,
     }
 }
 
+/**
+ * v_add_with_gain
+ *
+ * Add the elements in the vector \arg src, each multiplied by the
+ * constant factor \arg gain, to the corresponding elements in the
+ * vector \arg dst, both of length arg \count, leaving the result in
+ * \arg dst.
+ *
+ * Caller guarantees that \arg src and \arg dst are non-overlapping.
+ */
 template<typename T, typename G>
 inline void v_add_with_gain(T *const R__ dst,
                             const T *const R__ src,
-                            const int count,
-                            const G gain)
+                            const G gain,
+                            const int count)
 {
     for (int i = 0; i < count; ++i) {
         dst[i] += src[i] * gain;
     }
 }
 
+/**
+ * v_add_channels_with_gain
+ *
+ * Add the elements in the individual vectors in the set \arg src,
+ * each multiplied by the constant factor \arg gain, to the
+ * corresponding elements of the corresponding vectors in \arg dst,
+ * leaving the results in \arg dst. All vectors have length \arg
+ * count, and there are \arg channels vectors in each set.
+ *
+ * Caller guarantees that all of the \arg src and \arg dst vectors are
+ * non-overlapping with each other.
+ */
 template<typename T, typename G>
 inline void v_add_channels_with_gain(T *const R__ *const R__ dst,
                                      const T *const R__ *const R__ src,
+                                     const G gain,
                                      const int channels,
-                                     const int count,
-                                     const G gain)
+                                     const int count)
 {
     for (int c = 0; c < channels; ++c) {
-        v_add_with_gain(dst[c], src[c], count, gain);
+        v_add_with_gain(dst[c], src[c], gain, count);
     }
 }
 
@@ -745,36 +881,36 @@ inline void v_deinterleave(float *const R__ *const R__ dst,
 #endif
 
 template<typename T>
-inline void v_fftshift(T *const R__ ptr,
+inline void v_fftshift(T *const R__ vec,
                        const int count)
 {
     const int hs = count/2;
     for (int i = 0; i < hs; ++i) {
-        T t = ptr[i];
-        ptr[i] = ptr[i + hs];
-        ptr[i + hs] = t;
+        T t = vec[i];
+        vec[i] = vec[i + hs];
+        vec[i + hs] = t;
     }
 }
 
 template<typename T>
-inline T v_mean(const T *const R__ ptr, const int count)
+inline T v_mean(const T *const R__ vec, const int count)
 {
     T t = T(0);
     for (int i = 0; i < count; ++i) {
-        t += ptr[i];
+        t += vec[i];
     }
     t /= T(count);
     return t;
 }
 
 template<typename T>
-inline T v_mean_channels(const T *const R__ *const R__ ptr,
+inline T v_mean_channels(const T *const R__ *const R__ vec,
                          const int channels,
                          const int count)
 {
     T t = T(0);
     for (int c = 0; c < channels; ++c) {
-        t += v_mean(ptr[c], count);
+        t += v_mean(vec[c], count);
     }
     t /= T(channels);
     return t;
