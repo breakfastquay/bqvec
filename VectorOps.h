@@ -426,6 +426,15 @@ inline void v_add_channels_with_gain(T *const R__ *const R__ dst,
     }
 }
 
+/**
+ * v_subtract
+ *
+ * Subtract the elements in the vector \arg src from the corresponding
+ * elements in the vector \arg dst, both of length arg \count, leaving
+ * the result in \arg dst.
+ *
+ * Caller guarantees that \arg src and \arg dst are non-overlapping.
+ */
 template<typename T>
 inline void v_subtract(T *const R__ dst,
                        const T *const R__ src,
