@@ -493,6 +493,12 @@ inline void v_subtract(double *const R__ dst,
 }    
 #endif
 
+/**
+ * v_scale
+ *
+ * Scale the elements in the vector \arg dst, of length \arg count, by
+ * the factor \arg gain.
+ */
 template<typename T, typename G>
 inline void v_scale(T *const R__ dst,
                     const G gain,
@@ -520,6 +526,15 @@ inline void v_scale(double *const R__ dst,
 }
 #endif
 
+/**
+ * v_multiply
+ *
+ * Multiply the elements in the vector \arg dst by the corresponding
+ * elements in the vector \arg src, both of length arg \count, leaving
+ * the result in \arg dst.
+ *
+ * Caller guarantees that \arg src and \arg dst are non-overlapping.
+ */
 template<typename T>
 inline void v_multiply(T *const R__ dst,
                        const T *const R__ src,
@@ -547,6 +562,16 @@ inline void v_multiply(double *const R__ dst,
 }
 #endif
 
+/**
+ * v_multiply
+ *
+ * Multiply the corresponding elements of the vectors \arg src1 and
+ * \arg src2, both of length arg \count, and write the results into
+ * \arg dst.
+ *
+ * Caller guarantees that \arg src1, \arg src2 and \arg dst are
+ * non-overlapping.
+ */
 template<typename T>
 inline void v_multiply(T *const R__ dst,
                        const T *const R__ src1,
@@ -558,6 +583,34 @@ inline void v_multiply(T *const R__ dst,
     }
 }
 
+#if defined HAVE_IPP 
+template<>
+inline void v_multiply(float *const R__ dst,
+                       const float *const R__ src1,
+                       const float *const R__ src2,
+                       const int count)
+{
+    ippsMul_32f(src1, src2, dst, count);
+}    
+template<>
+inline void v_multiply(double *const R__ dst,
+                       const double *const R__ src1,
+                       const double *const R__ src2,
+                       const int count)
+{
+    ippsMul_64f(src1, src2, dst, count);
+}
+#endif
+
+/**
+ * v_divide
+ *
+ * Divide the elements in the vector \arg dst by the corresponding
+ * elements in the vector \arg src, both of length arg \count, leaving
+ * the result in \arg dst.
+ *
+ * Caller guarantees that \arg src and \arg dst are non-overlapping.
+ */
 template<typename T>
 inline void v_divide(T *const R__ dst,
                      const T *const R__ src,
@@ -585,25 +638,16 @@ inline void v_divide(double *const R__ dst,
 }
 #endif
 
-#if defined HAVE_IPP 
-template<>
-inline void v_multiply(float *const R__ dst,
-                       const float *const R__ src1,
-                       const float *const R__ src2,
-                       const int count)
-{
-    ippsMul_32f(src1, src2, dst, count);
-}    
-template<>
-inline void v_multiply(double *const R__ dst,
-                       const double *const R__ src1,
-                       const double *const R__ src2,
-                       const int count)
-{
-    ippsMul_64f(src1, src2, dst, count);
-}
-#endif
-
+/**
+ * v_multiply_and_add
+ *
+ * Multiply the corresponding elements of the vectors \arg src1 and
+ * \arg src2, both of length arg \count, and add the results to the
+ * corresponding elements of vector \arg dst.
+ *
+ * Caller guarantees that \arg src1, \arg src2 and \arg dst are
+ * non-overlapping.
+ */
 template<typename T>
 inline void v_multiply_and_add(T *const R__ dst,
                                const T *const R__ src1,
@@ -634,6 +678,12 @@ inline void v_multiply_and_add(double *const R__ dst,
 }
 #endif
 
+/**
+ * v_sum
+ *
+ * Return the sum of the elements in vector \arg src, of length \arg
+ * count.
+ */
 template<typename T>
 inline T v_sum(const T *const R__ src,
                const int count)
@@ -645,6 +695,12 @@ inline T v_sum(const T *const R__ src,
     return result;
 }
 
+/**
+ * v_log
+ *
+ * Replace each element in vector \arg dst, of length \arg count, with
+ * its natural logarithm.
+ */
 template<typename T>
 inline void v_log(T *const R__ dst,
                   const int count)
@@ -690,6 +746,12 @@ inline void v_log(double *const R__ dst,
 }
 #endif
 
+/**
+ * v_exp
+ *
+ * Replace each element in vector \arg dst, of length \arg count, with
+ * its base-e exponential.
+ */
 template<typename T>
 inline void v_exp(T *const R__ dst,
                   const int count)
@@ -735,6 +797,12 @@ inline void v_exp(double *const R__ dst,
 }
 #endif
 
+/**
+ * v_sqrt
+ *
+ * Replace each element in vector \arg dst, of length \arg count, with
+ * its square root.
+ */
 template<typename T>
 inline void v_sqrt(T *const R__ dst,
                    const int count)
@@ -780,6 +848,12 @@ inline void v_sqrt(double *const R__ dst,
 }
 #endif
 
+/**
+ * v_square
+ *
+ * Replace each element in vector \arg dst, of length \arg count, with
+ * its square.
+ */
 template<typename T>
 inline void v_square(T *const R__ dst,
                    const int count)
@@ -804,6 +878,12 @@ inline void v_square(double *const R__ dst,
 }
 #endif
 
+/**
+ * v_abs
+ *
+ * Replace each element in vector \arg dst, of length \arg count, with
+ * its absolute value.
+ */
 template<typename T>
 inline void v_abs(T *const R__ dst,
                   const int count)
@@ -841,6 +921,16 @@ inline void v_abs(float *const R__ dst,
 }
 #endif
 
+/**
+ * v_interleave
+ *
+ * Interleave (zip) the \arg channels vectors in \arg src, each of
+ * length \arg count, into the single vector \arg dst of length \arg
+ * channels * \arg count.
+ *
+ * Caller guarantees that the \arg src and \arg dst vectors are
+ * non-overlapping.
+ */
 template<typename T>
 inline void v_interleave(T *const R__ dst,
                          const T *const R__ *const R__ src,
@@ -881,6 +971,16 @@ inline void v_interleave(float *const R__ dst,
 // IPP does not (currently?) provide double-precision interleave
 #endif
 
+/**
+ * v_deinterleave
+ *
+ * Deinterleave (unzip) the single vector \arg src, of length \arg
+ * channels * \arg count, into the \arg channels vectors in \arg dst,
+ * each of length \arg count.
+ *
+ * Caller guarantees that the \arg src and \arg dst vectors are
+ * non-overlapping.
+ */
 template<typename T>
 inline void v_deinterleave(T *const R__ *const R__ dst,
                            const T *const R__ src,
@@ -921,6 +1021,13 @@ inline void v_deinterleave(float *const R__ *const R__ dst,
 // IPP does not (currently?) provide double-precision deinterleave
 #endif
 
+/**
+ * v_fftshift
+ *
+ * Perform an in-place left-right shift of the vector \arg vec of
+ * length \arg count, swapping the first and second halves of the
+ * vector.
+ */
 template<typename T>
 inline void v_fftshift(T *const R__ vec,
                        const int count)
@@ -933,6 +1040,12 @@ inline void v_fftshift(T *const R__ vec,
     }
 }
 
+/**
+ * v_mean
+ *
+ * Return the mean of the values in the vector \arg vec, of length
+ * \arg count.
+ */
 template<typename T>
 inline T v_mean(const T *const R__ vec, const int count)
 {
@@ -944,6 +1057,13 @@ inline T v_mean(const T *const R__ vec, const int count)
     return t;
 }
 
+/**
+ * v_mean_channels
+ *
+ * Return the mean of all the values in the set of \arg channels
+ * vectors in \arg vec, each of length \arg count. (This is the single
+ * mean of all values across all channels, not one mean per channel.)
+ */
 template<typename T>
 inline T v_mean_channels(const T *const R__ *const R__ vec,
                          const int channels,
