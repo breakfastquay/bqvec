@@ -182,7 +182,9 @@ T *reallocate_and_zero_extension(T *ptr, size_t oldcount, size_t count)
 template <typename T>
 T **allocate_channels(size_t channels, size_t count)
 {
-    T **ptr = allocate<T *>(channels);
+    // We don't want to use the aligned allocate for the channel
+    // pointers, it might even make things slower
+    T **ptr = new T *[channels];
     for (size_t c = 0; c < channels; ++c) {
         ptr[c] = allocate<T>(count);
     }
@@ -192,7 +194,9 @@ T **allocate_channels(size_t channels, size_t count)
 template <typename T>
 T **allocate_and_zero_channels(size_t channels, size_t count)
 {
-    T **ptr = allocate<T *>(channels);
+    // We don't want to use the aligned allocate for the channel
+    // pointers, it might even make things slower
+    T **ptr = new T *[channels];
     for (size_t c = 0; c < channels; ++c) {
         ptr[c] = allocate_and_zero<T>(count);
     }
@@ -206,7 +210,7 @@ void deallocate_channels(T **ptr, size_t channels)
     for (size_t c = 0; c < channels; ++c) {
         deallocate<T>(ptr[c]);
     }
-    deallocate<T *>(ptr);
+    delete[] ptr;
 }
 	
 template <typename T>
