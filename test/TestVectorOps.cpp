@@ -1,5 +1,4 @@
 /* -*- c-basic-offset: 4 indent-tabs-mode: nil -*-  vi:set ts=8 sts=4 sw=4: */
-/* Copyright Chris Cannam - All Rights Reserved */
 
 #include "bqvec/VectorOpsComplex.h"
 
@@ -10,7 +9,7 @@
 
 using namespace std;
 
-namespace Turbot {
+namespace breakfastquay {
 
 namespace Test {
 
