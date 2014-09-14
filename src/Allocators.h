@@ -90,7 +90,7 @@ T *allocate(size_t count)
     ptr = _aligned_malloc(count * sizeof(T), alignment);
 #else /* !__MSVC__ */
 #ifndef MALLOC_IS_ALIGNED
-#warning "No aligned malloc available or defined"
+#error "No aligned malloc available: define MALLOC_IS_ALIGNED to stick with system malloc, HAVE_POSIX_MEMALIGN if posix_memalign is available, or USE_OWN_ALIGNED_MALLOC to roll our own"
 #endif
     // Note that malloc always aligns to 16 byte boundaries on OS/X
     ptr = malloc(count * sizeof(T));
