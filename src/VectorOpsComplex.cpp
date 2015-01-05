@@ -45,6 +45,11 @@
 #endif
 #endif
 
+#ifdef __MSVC__
+#include <malloc.h>
+#define alloca _alloca
+#endif
+
 namespace breakfastquay {
 
 #ifdef USE_APPROXIMATE_ATAN2
