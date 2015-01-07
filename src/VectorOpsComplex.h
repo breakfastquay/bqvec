@@ -6,7 +6,7 @@
     A small library for vector arithmetic and allocation in C++ using
     raw C pointer arrays.
 
-    Copyright 2007-2014 Particular Programs Ltd.
+    Copyright 2007-2015 Particular Programs Ltd.
 
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
@@ -46,7 +46,7 @@ namespace breakfastquay {
 #ifndef NO_COMPLEX_TYPES
 
 template<> 
-inline void v_zero(bq_complex_t *const R__ ptr, 
+inline void v_zero(bq_complex_t *const BQ_R__ ptr, 
                    const int count)
 {
 #if defined HAVE_IPP
@@ -72,8 +72,8 @@ inline void v_zero(bq_complex_t *const R__ ptr,
 
 #if defined HAVE_IPP
 template<>
-inline void v_copy(bq_complex_t *const R__ dst,
-                   const bq_complex_t *const R__ src,
+inline void v_copy(bq_complex_t *const BQ_R__ dst,
+                   const bq_complex_t *const BQ_R__ src,
                    const int count)
 {
     if (sizeof(bq_complex_element_t) == sizeof(float)) {
@@ -83,8 +83,8 @@ inline void v_copy(bq_complex_t *const R__ dst,
     }
 }
 template<>
-inline void v_move(bq_complex_t *const R__ dst,
-                   const bq_complex_t *const R__ src,
+inline void v_move(bq_complex_t *const BQ_R__ dst,
+                   const bq_complex_t *const BQ_R__ src,
                    const int count)
 {
     if (sizeof(bq_complex_element_t) == sizeof(float)) {
@@ -96,8 +96,8 @@ inline void v_move(bq_complex_t *const R__ dst,
 #endif
 
 template<>
-inline void v_convert(bq_complex_t *const R__ dst,
-                      const bq_complex_element_t *const R__ src,
+inline void v_convert(bq_complex_t *const BQ_R__ dst,
+                      const bq_complex_element_t *const BQ_R__ src,
                       const int srccount)
 {
     const int targetcount = srccount / 2;
@@ -109,8 +109,8 @@ inline void v_convert(bq_complex_t *const R__ dst,
 }
 
 template<>
-inline void v_convert(bq_complex_element_t *const R__ dst,
-                      const bq_complex_t *const R__ src,
+inline void v_convert(bq_complex_element_t *const BQ_R__ dst,
+                      const bq_complex_t *const BQ_R__ src,
                       const int srccount)
 {
     int targetidx = 0;
@@ -175,8 +175,8 @@ inline void c_multiply_and_add(bq_complex_t &dst,
 }
 
 template<>
-inline void v_add(bq_complex_t *const R__ dst,
-                  const bq_complex_t *const R__ src,
+inline void v_add(bq_complex_t *const BQ_R__ dst,
+                  const bq_complex_t *const BQ_R__ src,
                   const int count)
 {
 #if defined HAVE_IPP
@@ -194,8 +194,8 @@ inline void v_add(bq_complex_t *const R__ dst,
 }    
 
 template<>
-inline void v_add_with_gain(bq_complex_t *const R__ dst,
-                            const bq_complex_t *const R__ src,
+inline void v_add_with_gain(bq_complex_t *const BQ_R__ dst,
+                            const bq_complex_t *const BQ_R__ src,
                             const bq_complex_element_t gain,
                             const int count)
 {
@@ -206,8 +206,8 @@ inline void v_add_with_gain(bq_complex_t *const R__ dst,
 }
 
 template<>
-inline void v_multiply(bq_complex_t *const R__ dst,
-                       const bq_complex_t *const R__ src,
+inline void v_multiply(bq_complex_t *const BQ_R__ dst,
+                       const bq_complex_t *const BQ_R__ src,
                        const int count)
 {
 #ifdef HAVE_IPP
@@ -224,9 +224,9 @@ inline void v_multiply(bq_complex_t *const R__ dst,
 }
 
 template<>
-inline void v_multiply(bq_complex_t *const R__ dst,
-                       const bq_complex_t *const R__ src1,
-                       const bq_complex_t *const R__ src2,
+inline void v_multiply(bq_complex_t *const BQ_R__ dst,
+                       const bq_complex_t *const BQ_R__ src1,
+                       const bq_complex_t *const BQ_R__ src2,
                        const int count)
 {
 #ifdef HAVE_IPP
@@ -245,9 +245,9 @@ inline void v_multiply(bq_complex_t *const R__ dst,
 }
 
 template<>
-inline void v_multiply_and_add(bq_complex_t *const R__ dst,
-                               const bq_complex_t *const R__ src1,
-                               const bq_complex_t *const R__ src2,
+inline void v_multiply_and_add(bq_complex_t *const BQ_R__ dst,
+                               const bq_complex_t *const BQ_R__ src1,
+                               const bq_complex_t *const BQ_R__ src2,
                                const int count)
 {
 #ifdef HAVE_IPP
@@ -359,18 +359,18 @@ inline void c_magphase(bq_complex_element_t *mag, bq_complex_element_t *phase,
     c_magphase<bq_complex_element_t>(mag, phase, c.re, c.im);
 }
 
-void v_polar_to_cartesian(bq_complex_t *const R__ dst,
-                          const bq_complex_element_t *const R__ mag,
-                          const bq_complex_element_t *const R__ phase,
+void v_polar_to_cartesian(bq_complex_t *const BQ_R__ dst,
+                          const bq_complex_element_t *const BQ_R__ mag,
+                          const bq_complex_element_t *const BQ_R__ phase,
                           const int count);
 
-void v_polar_interleaved_to_cartesian(bq_complex_t *const R__ dst,
-                                      const bq_complex_element_t *const R__ src,
+void v_polar_interleaved_to_cartesian(bq_complex_t *const BQ_R__ dst,
+                                      const bq_complex_element_t *const BQ_R__ src,
                                       const int count);
 
-inline void v_cartesian_to_polar(bq_complex_element_t *const R__ mag,
-                                 bq_complex_element_t *const R__ phase,
-                                 const bq_complex_t *const R__ src,
+inline void v_cartesian_to_polar(bq_complex_element_t *const BQ_R__ mag,
+                                 bq_complex_element_t *const BQ_R__ phase,
+                                 const bq_complex_t *const BQ_R__ src,
                                  const int count)
 {
     for (int i = 0; i < count; ++i) {
@@ -378,8 +378,8 @@ inline void v_cartesian_to_polar(bq_complex_element_t *const R__ mag,
     }
 }
 
-inline void v_cartesian_to_polar_interleaved(bq_complex_element_t *const R__ dst,
-                                             const bq_complex_t *const R__ src,
+inline void v_cartesian_to_polar_interleaved(bq_complex_element_t *const BQ_R__ dst,
+                                             const bq_complex_t *const BQ_R__ src,
                                              const int count)
 {
     for (int i = 0; i < count; ++i) {
@@ -391,10 +391,10 @@ inline void v_cartesian_to_polar_interleaved(bq_complex_element_t *const R__ dst
 #endif /* !NO_COMPLEX_TYPES */
 
 template<typename S, typename T> // S source, T target
-void v_polar_to_cartesian(T *const R__ real,
-                          T *const R__ imag,
-                          const S *const R__ mag,
-                          const S *const R__ phase,
+void v_polar_to_cartesian(T *const BQ_R__ real,
+                          T *const BQ_R__ imag,
+                          const S *const BQ_R__ mag,
+                          const S *const BQ_R__ phase,
                           const int count)
 {
     for (int i = 0; i < count; ++i) {
@@ -405,7 +405,7 @@ void v_polar_to_cartesian(T *const R__ real,
 }
 
 template<typename T>
-void v_polar_interleaved_to_cartesian_inplace(T *const R__ srcdst,
+void v_polar_interleaved_to_cartesian_inplace(T *const BQ_R__ srcdst,
                                               const int count)
 {
     T real, imag;
@@ -419,9 +419,9 @@ void v_polar_interleaved_to_cartesian_inplace(T *const R__ srcdst,
 }
 
 template<typename S, typename T> // S source, T target
-void v_polar_to_cartesian_interleaved(T *const R__ dst,
-                                      const S *const R__ mag,
-                                      const S *const R__ phase,
+void v_polar_to_cartesian_interleaved(T *const BQ_R__ dst,
+                                      const S *const BQ_R__ mag,
+                                      const S *const BQ_R__ phase,
                                       const int count)
 {
     T real, imag;
@@ -435,39 +435,39 @@ void v_polar_to_cartesian_interleaved(T *const R__ dst,
 }    
 
 #if defined USE_POMMIER_MATHFUN
-void v_polar_to_cartesian_pommier(float *const R__ real,
-                                  float *const R__ imag,
-                                  const float *const R__ mag,
-                                  const float *const R__ phase,
+void v_polar_to_cartesian_pommier(float *const BQ_R__ real,
+                                  float *const BQ_R__ imag,
+                                  const float *const BQ_R__ mag,
+                                  const float *const BQ_R__ phase,
                                   const int count);
-void v_polar_interleaved_to_cartesian_inplace_pommier(float *const R__ srcdst,
+void v_polar_interleaved_to_cartesian_inplace_pommier(float *const BQ_R__ srcdst,
                                                       const int count);
-void v_polar_to_cartesian_interleaved_pommier(float *const R__ dst,
-                                              const float *const R__ mag,
-                                              const float *const R__ phase,
+void v_polar_to_cartesian_interleaved_pommier(float *const BQ_R__ dst,
+                                              const float *const BQ_R__ mag,
+                                              const float *const BQ_R__ phase,
                                               const int count);
 
 template<>
-inline void v_polar_to_cartesian(float *const R__ real,
-                                 float *const R__ imag,
-                                 const float *const R__ mag,
-                                 const float *const R__ phase,
+inline void v_polar_to_cartesian(float *const BQ_R__ real,
+                                 float *const BQ_R__ imag,
+                                 const float *const BQ_R__ mag,
+                                 const float *const BQ_R__ phase,
                                  const int count)
 {
     v_polar_to_cartesian_pommier(real, imag, mag, phase, count);
 }
 
 template<>
-inline void v_polar_interleaved_to_cartesian_inplace(float *const R__ srcdst,
+inline void v_polar_interleaved_to_cartesian_inplace(float *const BQ_R__ srcdst,
                                                      const int count)
 {
     v_polar_interleaved_to_cartesian_inplace_pommier(srcdst, count);
 }
 
 template<>
-inline void v_polar_to_cartesian_interleaved(float *const R__ dst,
-                                             const float *const R__ mag,
-                                             const float *const R__ phase,
+inline void v_polar_to_cartesian_interleaved(float *const BQ_R__ dst,
+                                             const float *const BQ_R__ mag,
+                                             const float *const BQ_R__ phase,
                                              const int count)
 {
     v_polar_to_cartesian_interleaved_pommier(dst, mag, phase, count);
@@ -476,10 +476,10 @@ inline void v_polar_to_cartesian_interleaved(float *const R__ dst,
 #endif
 
 template<typename S, typename T> // S source, T target
-void v_cartesian_to_polar(T *const R__ mag,
-                          T *const R__ phase,
-                          const S *const R__ real,
-                          const S *const R__ imag,
+void v_cartesian_to_polar(T *const BQ_R__ mag,
+                          T *const BQ_R__ phase,
+                          const S *const BQ_R__ real,
+                          const S *const BQ_R__ imag,
                           const int count)
 {
     for (int i = 0; i < count; ++i) {
@@ -488,9 +488,9 @@ void v_cartesian_to_polar(T *const R__ mag,
 }
 
 template<typename S, typename T> // S source, T target
-void v_cartesian_interleaved_to_polar(T *const R__ mag,
-                                      T *const R__ phase,
-                                      const S *const R__ src,
+void v_cartesian_interleaved_to_polar(T *const BQ_R__ mag,
+                                      T *const BQ_R__ phase,
+                                      const S *const BQ_R__ src,
                                       const int count)
 {
     for (int i = 0; i < count; ++i) {
@@ -500,10 +500,10 @@ void v_cartesian_interleaved_to_polar(T *const R__ mag,
 
 #ifdef HAVE_VDSP
 template<>
-inline void v_cartesian_to_polar(float *const R__ mag,
-                                 float *const R__ phase,
-                                 const float *const R__ real,
-                                 const float *const R__ imag,
+inline void v_cartesian_to_polar(float *const BQ_R__ mag,
+                                 float *const BQ_R__ phase,
+                                 const float *const BQ_R__ real,
+                                 const float *const BQ_R__ imag,
                                  const int count)
 {
     DSPSplitComplex c;
@@ -514,10 +514,10 @@ inline void v_cartesian_to_polar(float *const R__ mag,
     vvatan2f(phase, imag, real, &count);
 }
 template<>
-inline void v_cartesian_to_polar(double *const R__ mag,
-                                 double *const R__ phase,
-                                 const double *const R__ real,
-                                 const double *const R__ imag,
+inline void v_cartesian_to_polar(double *const BQ_R__ mag,
+                                 double *const BQ_R__ phase,
+                                 const double *const BQ_R__ real,
+                                 const double *const BQ_R__ imag,
                                  const int count)
 {
     // double precision, this is significantly faster than using vDSP_polar
@@ -531,7 +531,7 @@ inline void v_cartesian_to_polar(double *const R__ mag,
 #endif
 
 template<typename T>
-void v_cartesian_to_polar_interleaved_inplace(T *const R__ srcdst,
+void v_cartesian_to_polar_interleaved_inplace(T *const BQ_R__ srcdst,
                                               const int count)
 {
     T mag, phase;

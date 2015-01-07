@@ -6,7 +6,7 @@
     A small library for vector arithmetic and allocation in C++ using
     raw C pointer arrays.
 
-    Copyright 2007-2014 Particular Programs Ltd.
+    Copyright 2007-2015 Particular Programs Ltd.
 
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
@@ -106,10 +106,10 @@ typedef ALIGN16_BEG union {
 #endif
 
 void
-v_polar_to_cartesian_pommier(float *const R__ real,
-                             float *const R__ imag,
-                             const float *const R__ mag,
-                             const float *const R__ phase,
+v_polar_to_cartesian_pommier(float *const BQ_R__ real,
+                             float *const BQ_R__ imag,
+                             const float *const BQ_R__ mag,
+                             const float *const BQ_R__ phase,
                              const int count)
 {
     int idx = 0, tidx = 0;
@@ -142,7 +142,7 @@ v_polar_to_cartesian_pommier(float *const R__ real,
 }    
 
 void
-v_polar_interleaved_to_cartesian_inplace_pommier(float *const R__ srcdst,
+v_polar_interleaved_to_cartesian_inplace_pommier(float *const BQ_R__ srcdst,
                                                  const int count)
 {
     int i;
@@ -177,9 +177,9 @@ v_polar_interleaved_to_cartesian_inplace_pommier(float *const R__ srcdst,
 }    
 
 void
-v_polar_to_cartesian_interleaved_pommier(float *const R__ dst,
-                                         const float *const R__ mag,
-                                         const float *const R__ phase,
+v_polar_to_cartesian_interleaved_pommier(float *const BQ_R__ dst,
+                                         const float *const BQ_R__ mag,
+                                         const float *const BQ_R__ phase,
                                          const int count)
 {
     int i;
@@ -219,9 +219,9 @@ v_polar_to_cartesian_interleaved_pommier(float *const R__ dst,
 #if defined HAVE_IPP
 
 void
-v_polar_to_cartesian(bq_complex_t *const R__ dst,
-		     const bq_complex_element_t *const R__ mag,
-		     const bq_complex_element_t *const R__ phase,
+v_polar_to_cartesian(bq_complex_t *const BQ_R__ dst,
+		     const bq_complex_element_t *const BQ_R__ mag,
+		     const bq_complex_element_t *const BQ_R__ phase,
 		     const int count)
 {
     if (sizeof(bq_complex_element_t) == sizeof(float)) {
@@ -236,9 +236,9 @@ v_polar_to_cartesian(bq_complex_t *const R__ dst,
 #elif defined HAVE_VDSP
 
 void
-v_polar_to_cartesian(bq_complex_t *const R__ dst,
-		     const bq_complex_element_t *const R__ mag,
-		     const bq_complex_element_t *const R__ phase,
+v_polar_to_cartesian(bq_complex_t *const BQ_R__ dst,
+		     const bq_complex_element_t *const BQ_R__ mag,
+		     const bq_complex_element_t *const BQ_R__ phase,
 		     const int count)
 {
     bq_complex_element_t *sc = (bq_complex_element_t *)
@@ -262,9 +262,9 @@ v_polar_to_cartesian(bq_complex_t *const R__ dst,
 #else
 
 void
-v_polar_to_cartesian(bq_complex_t *const R__ dst,
-		     const bq_complex_element_t *const R__ mag,
-		     const bq_complex_element_t *const R__ phase,
+v_polar_to_cartesian(bq_complex_t *const BQ_R__ dst,
+		     const bq_complex_element_t *const BQ_R__ mag,
+		     const bq_complex_element_t *const BQ_R__ phase,
 		     const int count)
 {
     for (int i = 0; i < count; ++i) {
@@ -286,8 +286,8 @@ v_polar_to_cartesian(bq_complex_t *const R__ dst,
 //!!! and that is probably a common case for us
 
 void
-v_polar_interleaved_to_cartesian(bq_complex_t *const R__ dst,
-				 const bq_complex_element_t *const R__ src,
+v_polar_interleaved_to_cartesian(bq_complex_t *const BQ_R__ dst,
+				 const bq_complex_element_t *const BQ_R__ src,
 				 const int count)
 {
     int idx = 0, tidx = 0;
@@ -316,8 +316,8 @@ v_polar_interleaved_to_cartesian(bq_complex_t *const R__ dst,
 // the basic fn
 
 void
-v_polar_interleaved_to_cartesian(bq_complex_t *const R__ dst,
-				 const bq_complex_element_t *const R__ src,
+v_polar_interleaved_to_cartesian(bq_complex_t *const BQ_R__ dst,
+				 const bq_complex_element_t *const BQ_R__ src,
 				 const int count)
 {
     bq_complex_element_t *mag = (bq_complex_element_t *)
@@ -335,8 +335,8 @@ v_polar_interleaved_to_cartesian(bq_complex_t *const R__ dst,
 // without a vector library, better avoid the deinterleave step
 
 void
-v_polar_interleaved_to_cartesian(bq_complex_t *const R__ dst,
-				 const bq_complex_element_t *const R__ src,
+v_polar_interleaved_to_cartesian(bq_complex_t *const BQ_R__ dst,
+				 const bq_complex_element_t *const BQ_R__ src,
 				 const int count)
 {
     bq_complex_element_t mag, phase;
@@ -353,7 +353,7 @@ v_polar_interleaved_to_cartesian(bq_complex_t *const R__ dst,
 #endif
 
 void
-v_polar_interleaved_to_cartesian_inplace(bq_complex_element_t *const R__ srcdst,
+v_polar_interleaved_to_cartesian_inplace(bq_complex_element_t *const BQ_R__ srcdst,
                                          const int count)
 {
     // Not ideal
