@@ -51,6 +51,12 @@
 #endif
 #endif
 
+#ifndef MALLOC_IS_NOT_ALIGNED
+#ifdef __APPLE__
+#define MALLOC_IS_ALIGNED
+#endif
+#endif
+
 #ifdef HAVE_POSIX_MEMALIGN
 #include <sys/mman.h>
 #endif

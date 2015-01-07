@@ -33,7 +33,7 @@
     Software without prior written authorization.
 */
 
-#include "VectorOpsComplex.h"
+#include "bqvec/VectorOpsComplex.h"
 
 #include <cassert>
 
