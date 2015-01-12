@@ -4,3 +4,8 @@ syntax: glob
 *.o
 *.bak
 *.so
+*.dylib
+*.dll
+*.a
+*.lib
+
