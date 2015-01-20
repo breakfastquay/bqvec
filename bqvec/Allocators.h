@@ -52,8 +52,10 @@
 #endif
 
 #ifndef MALLOC_IS_NOT_ALIGNED
-#ifdef __APPLE__
+#ifdef __APPLE_
+#ifndef MALLOC_IS_ALIGNED
 #define MALLOC_IS_ALIGNED
+#endif
 #endif
 #endif
 
@@ -100,6 +102,7 @@ T *allocate(size_t count)
 #endif
     // Note that malloc always aligns to 16 byte boundaries on OS/X
     ptr = malloc(count * sizeof(T));
+    (void)alignment; // avoid compiler warning for unused 
 #endif /* !__MSVC__ */
 #endif /* !HAVE_POSIX_MEMALIGN */
 #endif /* !USE_OWN_ALIGNED_MALLOC */
