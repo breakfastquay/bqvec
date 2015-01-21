@@ -231,7 +231,7 @@ T **reallocate_channels(T **ptr,
     if (oldcount && ptr) {
         v_copy_channels(newptr, ptr, channels, oldcount < count ? oldcount : count);
     } 
-    if (ptr) deallocate_channels<T>(ptr, channels);
+    if (ptr) deallocate_channels<T>(ptr, oldchannels);
     return newptr;
 }
 	
@@ -244,7 +244,7 @@ T **reallocate_and_zero_extend_channels(T **ptr,
     if (oldcount && ptr) {
         v_copy_channels(newptr, ptr, channels, oldcount < count ? oldcount : count);
     } 
-    if (ptr) deallocate_channels<T>(ptr, channels);
+    if (ptr) deallocate_channels<T>(ptr, oldchannels);
     return newptr;
 }
 
