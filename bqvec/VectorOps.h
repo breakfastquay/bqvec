@@ -45,8 +45,7 @@
 #endif
 
 #ifdef HAVE_VDSP
-#include <vecLib/vDSP.h>
-#include <vecLib/vForce.h>
+#include <Accelerate/Accelerate.h>
 #endif
 
 #include <cstring>
@@ -912,7 +911,7 @@ inline void v_abs(float *const BQ_R__ dst,
                   const int count)
 {
     float tmp[count];
-#if (MACOSX_DEPLOYMENT_TARGET <= 1070 && MAC_OS_X_VERSION_MIN_REQUIRED <= 1070)
+#if (defined(MACOSX_DEPLOYMENT_TARGET) && MACOSX_DEPLOYMENT_TARGET <= 1070 && MAC_OS_X_VERSION_MIN_REQUIRED <= 1070)
     vvfabf(tmp, dst, &count);
 #else
     vvfabsf(tmp, dst, &count);
