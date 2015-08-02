@@ -58,7 +58,7 @@ HEADERS	:= $(wildcard $(HEADER_DIR)/*.h) $(wildcard $(SRC_DIR)/*.h)
 OBJECTS	:= $(SOURCES:.cpp=.o)
 OBJECTS	:= $(OBJECTS:.c=.o)
 
-CXXFLAGS := $(VECTOR_DEFINES) $(ALLOCATOR_DEFINES) -I.
+CXXFLAGS := $(VECTOR_DEFINES) $(ALLOCATOR_DEFINES) -I. -Wall -Werror
 
 LIBRARY	:= libbqvec.a
 
@@ -82,6 +82,8 @@ depend:
 src/VectorOpsComplex.o: bqvec/VectorOpsComplex.h bqvec/VectorOps.h
 src/VectorOpsComplex.o: bqvec/Restrict.h bqvec/ComplexTypes.h
 src/Allocators.o: bqvec/Allocators.h bqvec/VectorOps.h bqvec/Restrict.h
+bqvec/RingBuffer.o: bqvec/Barrier.h bqvec/Allocators.h bqvec/VectorOps.h
+bqvec/RingBuffer.o: bqvec/Restrict.h
 bqvec/VectorOpsComplex.o: bqvec/VectorOps.h bqvec/Restrict.h
 bqvec/VectorOpsComplex.o: bqvec/ComplexTypes.h
 bqvec/VectorOps.o: bqvec/Restrict.h
