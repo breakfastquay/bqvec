@@ -180,9 +180,9 @@ public:
 
 protected:
     T *const BQ_R__ m_buffer;
-    int          m_writer;
-    int          m_reader;
-    const int    m_size;
+    int             m_writer;
+    int             m_reader;
+    const int       m_size;
 
     int readSpaceFor(int w, int r) const {
         int space;
