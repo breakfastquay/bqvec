@@ -36,6 +36,11 @@
 #ifndef BQVEC_ALLOCATORS_H
 #define BQVEC_ALLOCATORS_H
 
+/*
+ * Aligned and per-channel allocators and deallocators for raw C array
+ * buffers.
+ */
+
 #include "VectorOps.h"
 
 #include <new> // for std::bad_alloc
@@ -130,7 +135,9 @@ template <typename T>
 T *allocate_and_zero(size_t count)
 {
     T *ptr = allocate<T>(count);
-    v_zero(ptr, count);
+    for (size_t i = 0; i < count; ++i) {
+        ptr[i] = T();
+    }
     return ptr;
 }
 
@@ -164,7 +171,9 @@ T *reallocate(T *ptr, size_t oldcount, size_t count)
 {
     T *newptr = allocate<T>(count);
     if (oldcount && ptr) {
-        v_copy(newptr, ptr, oldcount < count ? oldcount : count);
+        for (size_t i = 0; i < oldcount && i < count; ++i) {
+            newptr[i] = ptr[i];
+        }
     }
     if (ptr) deallocate<T>(ptr);
     return newptr;
@@ -175,7 +184,9 @@ template <typename T>
 T *reallocate_and_zero(T *ptr, size_t oldcount, size_t count)
 {
     ptr = reallocate(ptr, oldcount, count);
-    v_zero(ptr, count);
+    for (size_t i = 0; i < count; ++i) {
+        ptr[i] = T();
+    }
     return ptr;
 }
 	
@@ -184,7 +195,11 @@ template <typename T>
 T *reallocate_and_zero_extension(T *ptr, size_t oldcount, size_t count)
 {
     ptr = reallocate(ptr, oldcount, count);
-    if (count > oldcount) v_zero(ptr + oldcount, count - oldcount);
+    if (count > oldcount) {
+        for (size_t i = oldcount; i < count; ++i) {
+            ptr[i] = T();
+        }
+    }
     return ptr;
 }
 
@@ -229,7 +244,11 @@ T **reallocate_channels(T **ptr,
 {
     T **newptr = allocate_channels<T>(channels, count);
     if (oldcount && ptr) {
-        v_copy_channels(newptr, ptr, channels, oldcount < count ? oldcount : count);
+        for (size_t c = 0; c < channels; ++c) {
+            for (size_t i = 0; i < oldcount && i < count; ++i) {
+                newptr[c][i] = ptr[c][i];
+            }
+        }
     } 
     if (ptr) deallocate_channels<T>(ptr, oldchannels);
     return newptr;
@@ -242,7 +261,11 @@ T **reallocate_and_zero_extend_channels(T **ptr,
 {
     T **newptr = allocate_and_zero_channels<T>(channels, count);
     if (oldcount && ptr) {
-        v_copy_channels(newptr, ptr, channels, oldcount < count ? oldcount : count);
+        for (size_t c = 0; c < channels; ++c) {
+            for (size_t i = 0; i < oldcount && i < count; ++i) {
+                newptr[c][i] = ptr[c][i];
+            }
+        }
     } 
     if (ptr) deallocate_channels<T>(ptr, oldchannels);
     return newptr;

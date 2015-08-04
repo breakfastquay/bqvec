@@ -1,6 +1,6 @@
 /* -*- c-basic-offset: 4 indent-tabs-mode: nil -*-  vi:set ts=8 sts=4 sw=4: */
 
-#include "VectorOpsComplex.h"
+#include "bqvec/VectorOpsComplex.h"
 
 #include <iostream>
 #include <cstdlib>
@@ -23,9 +23,9 @@ testMultiply()
     cerr << "testVectorOps: testing v_multiply complex" << endl;
 
     const int N = 1024;
-    turbot_complex_sample_t target[N];
-    turbot_complex_sample_t src1[N];
-    turbot_complex_sample_t src2[N];
+    bq_complex_t target[N];
+    bq_complex_t src1[N];
+    bq_complex_t src2[N];
 
     for (int i = 0; i < N; ++i) {
 	src1[i].re = drand48();
@@ -34,9 +34,9 @@ testMultiply()
 	src2[i].im = drand48();
     }
 
-    turbot_sample_t mean, first, last, total = 0;
+    double mean, first, last, total = 0;
     for (int i = 0; i < N; ++i) {
-        turbot_complex_sample_t result;
+        bq_complex_t result;
         c_multiply(result, src1[i], src2[i]);
 	if (i == 0) first = result.re;
 	if (i == N-1) last = result.im;
@@ -97,19 +97,19 @@ testPolarToCart()
     cerr << "testVectorOps: testing v_polar_to_cartesian" << endl;
 
     const int N = 1024;
-    turbot_complex_sample_t target[N];
-    turbot_sample_t mag[N];
-    turbot_sample_t phase[N];
+    bq_complex_t target[N];
+    double mag[N];
+    double phase[N];
 
     for (int i = 0; i < N; ++i) {
 	mag[i] = drand48();
 	phase[i] = (drand48() * M_PI * 2) - M_PI;
     }
 
-    turbot_sample_t mean, first, last, total = 0;
+    double mean, first, last, total = 0;
     for (int i = 0; i < N; ++i) {
-	turbot_sample_t real = mag[i] * cos(phase[i]);
-	turbot_sample_t imag = mag[i] * sin(phase[i]);
+	double real = mag[i] * cos(phase[i]);
+	double imag = mag[i] * sin(phase[i]);
 	if (i == 0) first = real;
 	if (i == N-1) last = imag;
 	total += real;
@@ -171,18 +171,18 @@ testPolarToCartInterleaved()
     cerr << "testVectorOps: testing v_polar_interleaved_to_cartesian" << endl;
 
     const int N = 1024;
-    turbot_complex_sample_t target[N];
-    turbot_sample_t source[N*2];
+    bq_complex_t target[N];
+    double source[N*2];
 
     for (int i = 0; i < N; ++i) {
 	source[i*2] = drand48();
 	source[i*2+1] = (drand48() * M_PI * 2) - M_PI;
     }
 
-    turbot_sample_t mean, first, last, total = 0;
+    double mean, first, last, total = 0;
     for (int i = 0; i < N; ++i) {
-	turbot_sample_t real = source[i*2] * cos(source[i*2+1]);
-	turbot_sample_t imag = source[i*2] * sin(source[i*2+1]);
+	double real = source[i*2] * cos(source[i*2+1]);
+	double imag = source[i*2] * sin(source[i*2+1]);
 	if (i == 0) first = real;
 	if (i == N-1) last = imag;
 	total += real;

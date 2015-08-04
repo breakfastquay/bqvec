@@ -58,7 +58,7 @@ HEADERS	:= $(wildcard $(HEADER_DIR)/*.h) $(wildcard $(SRC_DIR)/*.h)
 OBJECTS	:= $(SOURCES:.cpp=.o)
 OBJECTS	:= $(OBJECTS:.c=.o)
 
-CXXFLAGS := $(VECTOR_DEFINES) $(ALLOCATOR_DEFINES) -I. -Wall -Werror -fpic
+CXXFLAGS := $(VECTOR_DEFINES) $(ALLOCATOR_DEFINES) -I$(HEADER_DIR) -Wall -Werror -fpic
 
 LIBRARY	:= libbqvec.a
 

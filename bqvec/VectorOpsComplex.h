@@ -303,7 +303,7 @@ inline void c_phasor(T *real, T *imag, T phase)
     }
 #elif defined __GNUC__
     if (sizeof(T) == sizeof(float)) {
-        sincosf(phase, (float *)imag, (float *)real);
+        sincosf(float(phase), (float *)imag, (float *)real);
     } else {
         sincos(phase, (double *)imag, (double *)real);
     }

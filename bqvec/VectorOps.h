@@ -63,6 +63,14 @@ namespace breakfastquay {
  * supported vector libraries (e.g. IPP, Accelerate) where useful.
  * No intrinsics or assembly.
  *
+ * Note that all size and index arguments are plain machine ints, to
+ * facilitate compiler optimization and vectorization. In general
+ * these functions should be used only with buffers whose sizes are
+ * calculated from known processing parameters and that are known to
+ * be much smaller than 32-bit int range. For security reasons you
+ * should not use these functions with buffers whose sizes may be
+ * under control of the user or external input.
+ *
  * Argument ordering:
  *
  * If a function operates on one or more vector sequences in memory,

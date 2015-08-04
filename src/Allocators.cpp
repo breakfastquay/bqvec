@@ -33,7 +33,7 @@
     Software without prior written authorization.
 */
 
-#include "bqvec/Allocators.h"
+#include "Allocators.h"
 
 #ifdef HAVE_IPP
 #include <ipps.h>
