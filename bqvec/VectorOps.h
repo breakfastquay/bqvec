@@ -703,6 +703,27 @@ inline T v_sum(const T *const BQ_R__ src,
 }
 
 /**
+ * v_multiply_and_sum
+ *
+ * Multiply the corresponding elements of the vectors \arg src1 and
+ * \arg src2, both of length arg \count, sum the results, and return
+ * the sum as a scalar value.
+ *
+ * Caller guarantees that \arg src1 and \arg src2 are non-overlapping.
+ */
+template<typename T>
+inline T v_multiply_and_sum(const T *const BQ_R__ src1,
+                            const T *const BQ_R__ src2,
+                            const int count)
+{
+    T result = T();
+    for (int i = 0; i < count; ++i) {
+        result += src1[i] * src2[i];
+    }
+    return result;
+}
+
+/**
  * v_log
  *
  * Replace each element in vector \arg dst, of length \arg count, with
