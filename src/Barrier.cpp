@@ -33,6 +33,8 @@
     Software without prior written authorization.
 */
 
+#include "Barrier.h"
+
 namespace breakfastquay {
 
 void system_memorybarrier()
