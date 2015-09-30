@@ -41,8 +41,6 @@
  * buffers.
  */
 
-#include "VectorOps.h"
-
 #include <new> // for std::bad_alloc
 #include <stdlib.h>
 
