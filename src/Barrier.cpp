@@ -33,6 +33,10 @@
     Software without prior written authorization.
 */
 
+#if defined __APPLE__
+#include <libkern/OSAtomic.h>
+#endif
+
 namespace breakfastquay {
 
 void system_memorybarrier()
