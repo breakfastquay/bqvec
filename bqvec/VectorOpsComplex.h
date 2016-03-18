@@ -302,6 +302,10 @@ inline void c_phasor(T *real, T *imag, T phase)
         *imag = sin(phase);
     }
 #elif defined __GNUC__
+#if defined __APPLE__
+#define sincos __sincos
+#define sincosf __sincosf
+#endif
     if (sizeof(T) == sizeof(float)) {
         sincosf(float(phase), (float *)imag, (float *)real);
     } else {

@@ -35,6 +35,10 @@
 
 #include "Barrier.h"
 
+#if defined __APPLE__
+#include <libkern/OSAtomic.h>
+#endif
+
 namespace breakfastquay {
 
 void system_memorybarrier()
