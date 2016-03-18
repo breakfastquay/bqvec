@@ -542,6 +542,27 @@ void v_cartesian_to_polar_interleaved_inplace(T *const BQ_R__ srcdst,
     }
 }
 
+template<typename S, typename T> // S source, T target
+void v_cartesian_to_magnitudes(T *const BQ_R__ mag,
+                               const S *const BQ_R__ real,
+                               const S *const BQ_R__ imag,
+                               const int count)
+{
+    for (int i = 0; i < count; ++i) {
+        mag[i] = sqrt(real[i] * real[i] + imag[i] * imag[i]);
+    }
+}
+
+template<typename S, typename T> // S source, T target
+void v_cartesian_interleaved_to_magnitudes(T *const BQ_R__ mag,
+                                           const S *const BQ_R__ src,
+                                           const int count)
+{
+    for (int i = 0; i < count; ++i) {
+        mag[i] = sqrt(src[i*2] * src[i*2] + src[i*2+1] * src[i*2+1]);
+    }
+}
+
 }
 
 #endif

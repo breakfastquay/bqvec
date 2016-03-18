@@ -49,6 +49,7 @@
 #endif
 
 #include <cstring>
+#include <cmath>
 
 #include "Restrict.h"
 
