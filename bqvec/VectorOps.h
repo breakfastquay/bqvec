@@ -1073,12 +1073,13 @@ inline void v_fftshift(T *const BQ_R__ vec,
  * v_mean
  *
  * Return the mean of the values in the vector \arg vec, of length
- * \arg count.
+ * \arg count. For an empty vector, return 0.0.
  */
 template<typename T>
 inline T v_mean(const T *const BQ_R__ vec, const int count)
 {
     T t = T(0);
+    if (count == 0) return t;
     for (int i = 0; i < count; ++i) {
         t += vec[i];
     }
