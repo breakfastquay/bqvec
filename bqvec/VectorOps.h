@@ -535,6 +535,22 @@ inline void v_scale(double *const BQ_R__ dst,
 #endif
 
 /**
+ * v_increment
+ *
+ * Add a constant quantity \incr to all of the elements in the vector
+ * \arg dst, of length \arg count.
+ */
+template<typename T, typename G>
+inline void v_increment(T *const BQ_R__ dst,
+                        const G incr,
+                        const int count)
+{
+    for (int i = 0; i < count; ++i) {
+        dst[i] += incr;
+    }
+}
+
+/**
  * v_multiply
  *
  * Multiply the elements in the vector \arg dst by the corresponding
