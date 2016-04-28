@@ -36,12 +36,14 @@
 #ifndef BQVEC_RINGBUFFER_H
 #define BQVEC_RINGBUFFER_H
 
-#include <sys/types.h>
-
 //#define DEBUG_RINGBUFFER 1
 
 #include "Barrier.h"
 #include "Allocators.h"
+#include "Restrict.h"
+#include "VectorOps.h"
+
+#include <sys/types.h>
 
 #include <iostream>
 
