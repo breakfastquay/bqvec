@@ -1123,6 +1123,69 @@ inline T v_mean_channels(const T *const BQ_R__ *const BQ_R__ vec,
     return t;
 }
 
+/**
+ * v_mix
+ *
+ * Mixdown N channels to 1 channel by simple averaging.
+ *
+ * Add the elements in the individual vectors in the set \arg src,
+ * each multiplied by the a constant factor 1 / \arg channels, and
+ * leave the results in \arg dst. All vectors have length \arg count,
+ * and there are \arg channels vectors in the input set.
+ *
+ * Caller guarantees that all of the \arg src and \arg dst vectors are
+ * non-overlapping with each other.
+ */
+template <typename T>
+inline void v_mix(T *const BQ_R__ *const BQ_R__ out,
+                  const T *const BQ_R__ *const BQ_R__ in,
+                  const int channels,
+                  const int count)
+{
+    v_zero(out, count);
+    for (int c = 0; c < channels; ++c) {
+        v_add(out, in[c], count);
+    }
+    v_scale(out, T(1.0) / T(channels), count);
+}
+
+/**
+ * v_reconfigure_channels
+ *
+ * Convert a fixed number of frames from n to m channels. 
+ * The rules are:
+ * -- if n == m, copy the input through unchanged
+ * -- else if m == 1, mixdown to mono by averaging all n input channels
+ * -- else if n == 1, duplicate the mono input across all m output channels
+ * -- else if n > m, take the first m channels of the input
+ * -- else take all n channels of the input and add m-n silent channels
+ */
+template<typename T>
+inline void v_reconfigure_channels(T *const BQ_R__ *const BQ_R__ out,
+                                   const int m, /* out channel count */
+                                   const T *const BQ_R__ *const BQ_R__ in,
+                                   const int n, /* in channel count */
+                                   const int count)
+{
+    if (n == m) {
+        v_copy_channels(out, in, n, count);
+    } else if (m == 1) {
+        v_mix(out, in, n, count);
+    } else if (n == 1) {
+        for (int c = 0; c < m; ++c) {
+            v_copy(out[c], in[0], count);
+        }
+    } else {
+        int c = 0;
+        while (c < n && c < m) {
+            v_copy(out[c], in[c], count);
+        }
+        while (c < m) {
+            v_zero(out[c], count);
+        }
+    }
+}
+
 }
 
 #endif
