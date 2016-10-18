@@ -38,6 +38,9 @@
 #if defined __APPLE__
 #include <libkern/OSAtomic.h>
 #endif
+#if defined _WIN32 && defined _MSC_VER
+#include <Windows.h>
+#endif
 
 namespace breakfastquay {
 
@@ -53,7 +56,7 @@ void system_memorybarrier()
 
 #elif defined _WIN32 
 
-#if defined __MSVC__    
+#if defined _MSC_VER
     MemoryBarrier();
 #else /* (mingw) */
     LONG Barrier = 0;
