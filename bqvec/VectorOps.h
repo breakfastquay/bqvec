@@ -1128,16 +1128,16 @@ inline T v_mean_channels(const T *const BQ_R__ *const BQ_R__ vec,
  *
  * Mixdown N channels to 1 channel by simple averaging.
  *
- * Add the elements in the individual vectors in the set \arg src,
+ * Add the elements in the individual vectors in the set \arg in,
  * each multiplied by the a constant factor 1 / \arg channels, and
- * leave the results in \arg dst. All vectors have length \arg count,
+ * leave the results in \arg out. All vectors have length \arg count,
  * and there are \arg channels vectors in the input set.
  *
- * Caller guarantees that all of the \arg src and \arg dst vectors are
+ * Caller guarantees that all of the \arg in and \arg out vectors are
  * non-overlapping with each other.
  */
 template <typename T>
-inline void v_mix(T *const BQ_R__ *const BQ_R__ out, //!!! <-- WRONG 
+inline void v_mix(T *const BQ_R__ out,
                   const T *const BQ_R__ *const BQ_R__ in,
                   const int channels,
                   const int count)
@@ -1170,7 +1170,7 @@ inline void v_reconfigure_channels(T *const BQ_R__ *const BQ_R__ out,
     if (n == m) {
         v_copy_channels(out, in, n, count);
     } else if (m == 1) {
-        v_mix(out, in, n, count);
+        v_mix(out[0], in, n, count);
     } else if (n == 1) {
         for (int c = 0; c < m; ++c) {
             v_copy(out[c], in[0], count);
