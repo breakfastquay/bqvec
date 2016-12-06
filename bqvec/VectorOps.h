@@ -1137,7 +1137,7 @@ inline T v_mean_channels(const T *const BQ_R__ *const BQ_R__ vec,
  * non-overlapping with each other.
  */
 template <typename T>
-inline void v_mix(T *const BQ_R__ *const BQ_R__ out,
+inline void v_mix(T *const BQ_R__ *const BQ_R__ out, //!!! <-- WRONG 
                   const T *const BQ_R__ *const BQ_R__ in,
                   const int channels,
                   const int count)
@@ -1179,9 +1179,51 @@ inline void v_reconfigure_channels(T *const BQ_R__ *const BQ_R__ out,
         int c = 0;
         while (c < n && c < m) {
             v_copy(out[c], in[c], count);
+            ++c;
         }
         while (c < m) {
             v_zero(out[c], count);
+            ++c;
+        }
+    }
+}
+
+/**
+ * v_reconfigure_channels_inplace
+ *
+ * Convert a fixed number of frames from n to m channels, operating
+ * in-place. That is, the input and output buffer arrays are the same,
+ * having space for max(n, m) channel arrays, and we read n channels
+ * from them and write back m.
+ *
+ * The rules are:
+ * -- if n >= m, leave unchanged
+ * -- else if m == 1, mixdown to mono by averaging all n channels
+ * -- else if n == 1, duplicate the mono input across all m channels
+ * -- else leave first n channels and add m-n silent channels
+ */
+template<typename T>
+inline void v_reconfigure_channels_inplace(T *const BQ_R__ *const BQ_R__ inout,
+                                           const int m, /* out channel count */
+                                           const int n, /* in channel count */
+                                           const int count)
+{
+    if (n >= m) {
+        return;
+    } else if (m == 1) {
+        for (int c = 1; c < n; ++c) {
+            v_add(inout[0], inout[c], count);
+        }
+        v_scale(inout[0], T(1.0) / T(n), count);
+    } else if (n == 1) {
+        for (int c = 1; c < m; ++c) {
+            v_copy(inout[c], inout[0], count);
+        }
+    } else {
+        int c = n;
+        while (c < m) {
+            v_zero(inout[c], count);
+            ++c;
         }
     }
 }
