@@ -50,22 +50,34 @@ ALLOCATOR_DEFINES :=
 
 
 SRC_DIR	:= src
+TEST_DIR := test
 HEADER_DIR := bqvec
 
 SOURCES	:= $(wildcard $(SRC_DIR)/*.cpp)
 HEADERS	:= $(wildcard $(HEADER_DIR)/*.h) $(wildcard $(SRC_DIR)/*.h)
 
+TIMINGS_SOURCES	:= $(TEST_DIR)/Timings.cpp
+
 OBJECTS	:= $(SOURCES:.cpp=.o)
 OBJECTS	:= $(OBJECTS:.c=.o)
 
-CXXFLAGS := $(VECTOR_DEFINES) $(ALLOCATOR_DEFINES) -I$(HEADER_DIR) -O3 -ffast-math -Wall -Werror -fpic
+CXXFLAGS := $(VECTOR_DEFINES) $(ALLOCATOR_DEFINES) -I. -I$(HEADER_DIR) -O3 -ffast-math -Wall -Werror -fpic
 
 LIBRARY	:= libbqvec.a
 
-all:	$(LIBRARY)
+all:	$(LIBRARY) timings
+
+test:	timings test-vectorops
+	./test-vectorops
 
 $(LIBRARY):	$(OBJECTS)
 	$(AR) rc $@ $^
+
+timings: $(TIMINGS_SOURCES) $(LIBRARY)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+test-vectorops:	$(TEST_DIR)/TestVectorOps.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework
 
 clean:		
 	rm -f $(OBJECTS)
@@ -74,7 +86,7 @@ distclean:	clean
 	rm -f $(LIBRARY)
 
 depend:
-	makedepend -Y -fMakefile $(SOURCES) $(HEADERS)
+	makedepend -Y -fMakefile $(SOURCES) $(TIMINGS_SOURCES) $(HEADERS)
 
 
 # DO NOT DELETE
