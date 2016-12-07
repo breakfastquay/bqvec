@@ -259,6 +259,29 @@ inline void v_move(double *const dst,
 #endif
 
 /**
+ * v_move_channels
+ *
+ * Copy the contents of the individual vectors in the set \arg src to
+ * the corresponding vectors in the set \arg dst. All vectors have
+ * length \arg count and there are \arg channels vectors in each set.
+ *
+ * The source vectors may overlap with the target vectors of
+ * corresponding channels. That is, src[i] may overlap with dst[i] but
+ * not with any other source or target vector. (If you know that no
+ * vectors can overlap, use v_copy instead.)
+ */
+template<typename T>
+inline void v_move_channels(T *const *const dst,       // not BQ_R__ (aliased)
+                            const T *const *const src, // not BQ_R__ (aliased)
+                            const int channels,
+                            const int count)
+{
+    for (int c = 0; c < channels; ++c) {
+        v_move(dst[c], src[c], count);
+    }
+}
+
+/**
  * v_convert
  *
  * Copy the contents of vector \arg src to the vector \arg dst, both
