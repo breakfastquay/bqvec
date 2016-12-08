@@ -65,14 +65,14 @@ TIMINGS_OBJECTS	:= $(TIMINGS_SOURCES:.cpp=.o)
 TEST_SOURCES	:= $(wildcard $(TEST_DIR)/*.cpp)
 TEST_OBJECTS	:= $(TEST_SOURCES:.cpp=.o)
 
-CXXFLAGS := $(VECTOR_DEFINES) $(ALLOCATOR_DEFINES) -I. -I$(HEADER_DIR) -O3 -ffast-math -Wall -Werror -fpic
+CXXFLAGS := $(VECTOR_DEFINES) $(ALLOCATOR_DEFINES) -I. -I$(HEADER_DIR) -O3 -ffast-math -Wall -Werror -fpic -std=c++98
 
 LIBRARY	:= libbqvec.a
 
 all:	$(LIBRARY) timings
 
-test:	timings test-vectorops
-	./test-vectorops
+test:	timings test-vectorops test-vectorops-complex
+	./test-vectorops && ./test-vectorops-complex
 
 $(LIBRARY):	$(OBJECTS)
 	$(AR) rc $@ $^
@@ -83,11 +83,14 @@ timings: $(TIMINGS_OBJECTS) $(LIBRARY)
 test-vectorops:	test/TestVectorOps.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework
 
+test-vectorops-complex:	test/TestVectorOpsComplex.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework
+
 clean:		
-	rm -f $(OBJECTS)
+	rm -f $(OBJECTS) $(TEST_OBJECTS) $(TIMINGS_OBJECTS)
 
 distclean:	clean
-	rm -f $(LIBRARY)
+	rm -f $(LIBRARY) test-vectorops test-vectorops-complex
 
 depend:
 	makedepend -Y -fMakefile $(SOURCES) $(TIMINGS_SOURCES) $(TEST_SOURCES) $(HEADERS)

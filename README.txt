@@ -7,7 +7,7 @@ using raw C pointer arrays.
 
 C++ standard required: C++98 (does not use C++11)
 
-Copyright 2007-2015 Particular Programs Ltd.
+Copyright 2007-2016 Particular Programs Ltd.
 
 This code originated as part of the Rubber Band Library written by the
 same authors (see https://bitbucket.org/breakfastquay/rubberband/).
