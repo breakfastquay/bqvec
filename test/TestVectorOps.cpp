@@ -349,5 +349,13 @@ BOOST_AUTO_TEST_CASE(reconfigure_3_3)
     COMPARE_N(oo[2], expected[2], 3);
 }
 
+BOOST_AUTO_TEST_CASE(fftshift)
+{
+    double a[] = { 0.1, 2.0, -0.3, 4.0 };
+    double e[] = { -0.3, 4.0, 0.1, 2.0 };
+    v_fftshift(a, 4);
+    COMPARE_N(a, e, 4);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
