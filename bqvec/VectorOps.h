@@ -1220,7 +1220,7 @@ inline void v_reconfigure_channels(T *const BQ_R__ *const BQ_R__ out,
  * from them and write back m.
  *
  * The rules are:
- * -- if n >= m, leave unchanged
+ * -- if n >= m and m > 1, leave unchanged
  * -- else if m == 1, mixdown to mono by averaging all n channels
  * -- else if n == 1, duplicate the mono input across all m channels
  * -- else leave first n channels and add m-n silent channels
@@ -1231,7 +1231,7 @@ inline void v_reconfigure_channels_inplace(T *const BQ_R__ *const BQ_R__ inout,
                                            const int n, /* in channel count */
                                            const int count)
 {
-    if (n >= m) {
+    if (n >= m && m > 1) {
         return;
     } else if (m == 1) {
         for (int c = 1; c < n; ++c) {

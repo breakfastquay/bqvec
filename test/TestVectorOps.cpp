@@ -349,6 +349,103 @@ BOOST_AUTO_TEST_CASE(reconfigure_3_3)
     COMPARE_N(oo[2], expected[2], 3);
 }
 
+BOOST_AUTO_TEST_CASE(reconfigure_1_2_inplace)
+{
+    double a1[] = { 1.0, 2.0, 3.0 };
+    double a2[3];
+    double *aa[] = { a1, a2 };
+    double e1[] = { 1.0, 2.0, 3.0 };
+    double e2[] = { 1.0, 2.0, 3.0 };
+    double *expected[] = { e1, e2 };
+    v_reconfigure_channels_inplace(aa, 2, 1, 3);
+    COMPARE_N(aa[0], expected[0], 3);
+    COMPARE_N(aa[1], expected[1], 3);
+}
+
+BOOST_AUTO_TEST_CASE(reconfigure_2_1_inplace)
+{
+    double a1[] = { 1.0, 2.0, 3.0 };
+    double a2[] = { 4.0, 5.0, 6.0 };
+    double *aa[] = { a1, a2 };
+    double e1[] = { 2.5, 3.5, 4.5 };
+    double *expected[] = { e1 };
+    v_reconfigure_channels_inplace(aa, 1, 2, 3);
+    COMPARE_N(aa[0], expected[0], 3);
+}
+
+BOOST_AUTO_TEST_CASE(reconfigure_3_1_inplace)
+{
+    double a1[] = { 1.0, 2.0 };
+    double a2[] = { 3.0, 4.0 };
+    double a3[] = { 5.0, 6.0 };
+    double *aa[] = { a1, a2, a3 };
+    double e1[] = { 3.0, 4.0 };
+    double *expected[] = { e1 };
+    v_reconfigure_channels_inplace(aa, 1, 3, 2);
+    COMPARE_N(aa[0], expected[0], 2);
+}
+
+BOOST_AUTO_TEST_CASE(reconfigure_1_3_inplace)
+{
+    double a1[] = { 1.0, 2.0, 3.0 };
+    double a2[3], a3[3];
+    double *aa[] = { a1, a2, a3 };
+    double e1[] = { 1.0, 2.0, 3.0 };
+    double e2[] = { 1.0, 2.0, 3.0 };
+    double e3[] = { 1.0, 2.0, 3.0 };
+    double *expected[] = { e1, e2, e3 };
+    v_reconfigure_channels_inplace(aa, 3, 1, 3);
+    COMPARE_N(aa[0], expected[0], 3);
+    COMPARE_N(aa[1], expected[1], 3);
+    COMPARE_N(aa[2], expected[2], 3);
+}
+
+BOOST_AUTO_TEST_CASE(reconfigure_2_3_inplace)
+{
+    double a1[] = { 1.0, 2.0, 3.0 };
+    double a2[] = { 4.0, 5.0, 6.0 };
+    double a3[3];
+    double *aa[] = { a1, a2, a3 };
+    double e1[] = { 1.0, 2.0, 3.0 };
+    double e2[] = { 4.0, 5.0, 6.0 };
+    double e3[] = { 0.0, 0.0, 0.0 };
+    double *expected[] = { e1, e2, e3 };
+    v_reconfigure_channels_inplace(aa, 3, 2, 3);
+    COMPARE_N(aa[0], expected[0], 3);
+    COMPARE_N(aa[1], expected[1], 3);
+    COMPARE_N(aa[2], expected[2], 3);
+}
+
+BOOST_AUTO_TEST_CASE(reconfigure_3_2_inplace)
+{
+    double a1[] = { 1.0, 2.0, 3.0 };
+    double a2[] = { 4.0, 5.0, 6.0 };
+    double a3[] = { 7.0, 8.0, 9.0 };
+    double *aa[] = { a1, a2, a3 };
+    double e1[] = { 1.0, 2.0, 3.0 };
+    double e2[] = { 4.0, 5.0, 6.0 };
+    double *expected[] = { e1, e2 };
+    v_reconfigure_channels_inplace(aa, 2, 3, 3);
+    COMPARE_N(aa[0], expected[0], 3);
+    COMPARE_N(aa[1], expected[1], 3);
+}
+
+BOOST_AUTO_TEST_CASE(reconfigure_3_3_inplace)
+{
+    double a1[] = { 1.0, 2.0, 3.0 };
+    double a2[] = { 4.0, 5.0, 6.0 };
+    double a3[] = { 7.0, 8.0, 9.0 };
+    double *aa[] = { a1, a2, a3 };
+    double e1[] = { 1.0, 2.0, 3.0 };
+    double e2[] = { 4.0, 5.0, 6.0 };
+    double e3[] = { 7.0, 8.0, 9.0 };
+    double *expected[] = { e1, e2, e3 };
+    v_reconfigure_channels_inplace(aa, 3, 3, 3);
+    COMPARE_N(aa[0], expected[0], 3);
+    COMPARE_N(aa[1], expected[1], 3);
+    COMPARE_N(aa[2], expected[2], 3);
+}
+
 BOOST_AUTO_TEST_CASE(fftshift)
 {
     double a[] = { 0.1, 2.0, -0.3, 4.0 };

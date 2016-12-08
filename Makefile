@@ -56,10 +56,14 @@ HEADER_DIR := bqvec
 SOURCES	:= $(wildcard $(SRC_DIR)/*.cpp)
 HEADERS	:= $(wildcard $(HEADER_DIR)/*.h) $(wildcard $(SRC_DIR)/*.h)
 
-TIMINGS_SOURCES	:= $(TEST_DIR)/Timings.cpp
-
 OBJECTS	:= $(SOURCES:.cpp=.o)
 OBJECTS	:= $(OBJECTS:.c=.o)
+
+TIMINGS_SOURCES	:= $(TEST_DIR)/Timings.cpp
+TIMINGS_OBJECTS	:= $(TIMINGS_SOURCES:.cpp=.o)
+
+TEST_SOURCES	:= $(wildcard $(TEST_DIR)/*.cpp)
+TEST_OBJECTS	:= $(TEST_SOURCES:.cpp=.o)
 
 CXXFLAGS := $(VECTOR_DEFINES) $(ALLOCATOR_DEFINES) -I. -I$(HEADER_DIR) -O3 -ffast-math -Wall -Werror -fpic
 
@@ -73,10 +77,10 @@ test:	timings test-vectorops
 $(LIBRARY):	$(OBJECTS)
 	$(AR) rc $@ $^
 
-timings: $(TIMINGS_SOURCES) $(LIBRARY)
+timings: $(TIMINGS_OBJECTS) $(LIBRARY)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-test-vectorops:	$(TEST_DIR)/TestVectorOps.cpp
+test-vectorops:	test/TestVectorOps.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework
 
 clean:		
@@ -86,17 +90,18 @@ distclean:	clean
 	rm -f $(LIBRARY)
 
 depend:
-	makedepend -Y -fMakefile $(SOURCES) $(TIMINGS_SOURCES) $(HEADERS)
+	makedepend -Y -fMakefile $(SOURCES) $(TIMINGS_SOURCES) $(TEST_SOURCES) $(HEADERS)
 
 
 # DO NOT DELETE
 
-src/VectorOpsComplex.o: bqvec/VectorOpsComplex.h bqvec/VectorOps.h
-src/VectorOpsComplex.o: bqvec/Restrict.h bqvec/ComplexTypes.h
-src/Allocators.o: bqvec/Allocators.h bqvec/VectorOps.h bqvec/Restrict.h
-bqvec/RingBuffer.o: bqvec/Barrier.h bqvec/Allocators.h bqvec/VectorOps.h
-bqvec/RingBuffer.o: bqvec/Restrict.h
+test/Timings.o: bqvec/VectorOpsComplex.h bqvec/VectorOps.h bqvec/Restrict.h
+test/Timings.o: bqvec/ComplexTypes.h
+test/Timings.o: bqvec/VectorOpsComplex.h bqvec/VectorOps.h bqvec/Restrict.h
+test/Timings.o: bqvec/ComplexTypes.h
+test/TestVectorOps.o: bqvec/VectorOps.h bqvec/Restrict.h
+bqvec/RingBuffer.o: bqvec/Barrier.h bqvec/Allocators.h bqvec/Restrict.h
+bqvec/RingBuffer.o: bqvec/VectorOps.h
 bqvec/VectorOpsComplex.o: bqvec/VectorOps.h bqvec/Restrict.h
 bqvec/VectorOpsComplex.o: bqvec/ComplexTypes.h
 bqvec/VectorOps.o: bqvec/Restrict.h
-bqvec/Allocators.o: bqvec/VectorOps.h bqvec/Restrict.h
