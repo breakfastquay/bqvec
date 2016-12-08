@@ -208,5 +208,146 @@ BOOST_AUTO_TEST_CASE(deinterleave_3)
     COMPARE_N(oo[2], expected[2], 2);
 }
 
+BOOST_AUTO_TEST_CASE(mix_1)
+{
+    double a[] = { 1.0, 2.0, 3.0 };
+    double *ch[] = { a };
+    double o[3];
+    double expected[] = { 1.0, 2.0, 3.0 };
+    v_mix(o, ch, 1, 3);
+    COMPARE_N(o, expected, 3);
+}
+
+BOOST_AUTO_TEST_CASE(mix_2)
+{
+    double a[] = { 1.0, 2.0, 3.0 };
+    double b[] = { 4.0, 5.0, 6.0 };
+    double *ch[] = { a, b };
+    double o[6];
+    double expected[] = { 2.5, 3.5, 4.5 };
+    v_mix(o, ch, 2, 3);
+    COMPARE_N(o, expected, 3);
+}
+
+BOOST_AUTO_TEST_CASE(mix_3)
+{
+    double a[] = { 1.0, 2.0 };
+    double b[] = { 3.0, 4.0 };
+    double c[] = { 5.0, 6.0 };
+    double *ch[] = { a, b, c };
+    double o[6];
+    double expected[] = { 3.0, 4.0 };
+    v_mix(o, ch, 3, 2);
+    COMPARE_N(o, expected, 2);
+}
+
+BOOST_AUTO_TEST_CASE(reconfigure_1_2)
+{
+    double a[] = { 1.0, 2.0, 3.0 };
+    double *aa[] = { a };
+    double o1[3], o2[3];
+    double *oo[] = { o1, o2 };
+    double e1[] = { 1.0, 2.0, 3.0 };
+    double e2[] = { 1.0, 2.0, 3.0 };
+    double *expected[] = { e1, e2 };
+    v_reconfigure_channels(oo, 2, aa, 1, 3);
+    COMPARE_N(oo[0], expected[0], 3);
+    COMPARE_N(oo[1], expected[1], 3);
+}
+
+BOOST_AUTO_TEST_CASE(reconfigure_2_1)
+{
+    double a1[] = { 1.0, 2.0, 3.0 };
+    double a2[] = { 4.0, 5.0, 6.0 };
+    double *aa[] = { a1, a2 };
+    double o1[3];
+    double *oo[] = { o1 };
+    double e1[] = { 2.5, 3.5, 4.5 };
+    double *expected[] = { e1 };
+    v_reconfigure_channels(oo, 1, aa, 2, 3);
+    COMPARE_N(oo[0], expected[0], 3);
+}
+
+BOOST_AUTO_TEST_CASE(reconfigure_3_1)
+{
+    double a1[] = { 1.0, 2.0 };
+    double a2[] = { 3.0, 4.0 };
+    double a3[] = { 5.0, 6.0 };
+    double *aa[] = { a1, a2, a3 };
+    double o1[2];
+    double *oo[] = { o1 };
+    double e1[] = { 3.0, 4.0 };
+    double *expected[] = { e1 };
+    v_reconfigure_channels(oo, 1, aa, 3, 2);
+    COMPARE_N(oo[0], expected[0], 2);
+}
+
+BOOST_AUTO_TEST_CASE(reconfigure_1_3)
+{
+    double a[] = { 1.0, 2.0, 3.0 };
+    double *aa[] = { a };
+    double o1[3], o2[3], o3[3];
+    double *oo[] = { o1, o2, o3 };
+    double e1[] = { 1.0, 2.0, 3.0 };
+    double e2[] = { 1.0, 2.0, 3.0 };
+    double e3[] = { 1.0, 2.0, 3.0 };
+    double *expected[] = { e1, e2, e3 };
+    v_reconfigure_channels(oo, 3, aa, 1, 3);
+    COMPARE_N(oo[0], expected[0], 3);
+    COMPARE_N(oo[1], expected[1], 3);
+    COMPARE_N(oo[2], expected[2], 3);
+}
+
+BOOST_AUTO_TEST_CASE(reconfigure_2_3)
+{
+    double a1[] = { 1.0, 2.0, 3.0 };
+    double a2[] = { 4.0, 5.0, 6.0 };
+    double *aa[] = { a1, a2 };
+    double o1[3], o2[3], o3[3];
+    double *oo[] = { o1, o2, o3 };
+    double e1[] = { 1.0, 2.0, 3.0 };
+    double e2[] = { 4.0, 5.0, 6.0 };
+    double e3[] = { 0.0, 0.0, 0.0 };
+    double *expected[] = { e1, e2, e3 };
+    v_reconfigure_channels(oo, 3, aa, 2, 3);
+    COMPARE_N(oo[0], expected[0], 3);
+    COMPARE_N(oo[1], expected[1], 3);
+    COMPARE_N(oo[2], expected[2], 3);
+}
+
+BOOST_AUTO_TEST_CASE(reconfigure_3_2)
+{
+    double a1[] = { 1.0, 2.0, 3.0 };
+    double a2[] = { 4.0, 5.0, 6.0 };
+    double a3[] = { 7.0, 8.0, 9.0 };
+    double *aa[] = { a1, a2, a3 };
+    double o1[3], o2[3];
+    double *oo[] = { o1, o2 };
+    double e1[] = { 1.0, 2.0, 3.0 };
+    double e2[] = { 4.0, 5.0, 6.0 };
+    double *expected[] = { e1, e2 };
+    v_reconfigure_channels(oo, 2, aa, 3, 3);
+    COMPARE_N(oo[0], expected[0], 3);
+    COMPARE_N(oo[1], expected[1], 3);
+}
+
+BOOST_AUTO_TEST_CASE(reconfigure_3_3)
+{
+    double a1[] = { 1.0, 2.0, 3.0 };
+    double a2[] = { 4.0, 5.0, 6.0 };
+    double a3[] = { 7.0, 8.0, 9.0 };
+    double *aa[] = { a1, a2, a3 };
+    double o1[3], o2[3], o3[3];
+    double *oo[] = { o1, o2, o3 };
+    double e1[] = { 1.0, 2.0, 3.0 };
+    double e2[] = { 4.0, 5.0, 6.0 };
+    double e3[] = { 7.0, 8.0, 9.0 };
+    double *expected[] = { e1, e2, e3 };
+    v_reconfigure_channels(oo, 3, aa, 3, 3);
+    COMPARE_N(oo[0], expected[0], 3);
+    COMPARE_N(oo[1], expected[1], 3);
+    COMPARE_N(oo[2], expected[2], 3);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
