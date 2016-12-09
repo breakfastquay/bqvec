@@ -37,11 +37,6 @@
 
 #include <cassert>
 
-#ifdef __MSVC__
-#include <malloc.h>
-#define alloca _alloca
-#endif
-
 #if defined USE_POMMIER_MATHFUN
 #if defined __ARMEL__
 #include "pommier/neon_mathfun.h"
@@ -53,6 +48,8 @@
 #ifdef __MSVC__
 #include <malloc.h>
 #define alloca _alloca
+#else
+#include <alloca.h>
 #endif
 
 namespace breakfastquay {
