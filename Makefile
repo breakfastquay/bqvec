@@ -19,6 +19,11 @@
 
 VECTOR_DEFINES	:= 
 
+# Add any related includes and libraries here
+#
+THIRD_PARTY_INCLUDES	:=                   # e.g. -I/opt/intel/ipp/include
+THIRD_PARTY_LIBS	:=                   # e.g. -L/opt/intel/ipp/lib/intel64_lin -Wl,-Bstatic -lipps -lippvm -lippcore -Wl,-Bdynamic
+
 
 # Add to ALLOCATOR_DEFINES options relating to aligned malloc.
 #
@@ -46,7 +51,7 @@ VECTOR_DEFINES	:=
 # may find it simplest to just add the bqvec source files to your
 # application's build system and not build a bqvec library at all.)
 
-ALLOCATOR_DEFINES := 
+ALLOCATOR_DEFINES :=
 
 
 SRC_DIR	:= src
@@ -65,7 +70,7 @@ TIMINGS_OBJECTS	:= $(TIMINGS_SOURCES:.cpp=.o)
 TEST_SOURCES	:= $(wildcard $(TEST_DIR)/*.cpp)
 TEST_OBJECTS	:= $(TEST_SOURCES:.cpp=.o)
 
-CXXFLAGS := $(VECTOR_DEFINES) $(ALLOCATOR_DEFINES) -I. -I$(HEADER_DIR) -O3 -ffast-math -Wall -Werror -fpic -std=c++98
+CXXFLAGS := $(VECTOR_DEFINES) $(ALLOCATOR_DEFINES) -I. $(THIRD_PARTY_INCLUDES) -I$(HEADER_DIR) -O3 -ffast-math -Wall -Werror -fpic -std=c++98
 
 LIBRARY	:= libbqvec.a
 
@@ -78,13 +83,13 @@ $(LIBRARY):	$(OBJECTS)
 	$(AR) rc $@ $^
 
 timings: $(TIMINGS_OBJECTS) $(LIBRARY)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(THIRD_PARTY_LIBS)
 
 test-vectorops:	test/TestVectorOps.o
-	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework $(THIRD_PARTY_LIBS)
 
 test-vectorops-complex:	test/TestVectorOpsComplex.o
-	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework $(THIRD_PARTY_LIBS)
 
 clean:		
 	rm -f $(OBJECTS) $(TEST_OBJECTS) $(TIMINGS_OBJECTS)

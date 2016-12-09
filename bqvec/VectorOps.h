@@ -42,8 +42,8 @@
 #endif
 #include <ippversion.h>
 #include <ipps.h>
-#if (IPP_VERSION_MAJOR <= 8)
-// Removed in v9
+#if (IPP_VERSION_MAJOR <= 7)
+// Deprecated in v8, removed in v9
 #include <ippac.h>
 #endif
 #endif
@@ -1032,8 +1032,8 @@ inline void v_interleave(T *const BQ_R__ dst,
 }
 
 #if defined HAVE_IPP 
-#if (IPP_VERSION_MAJOR <= 8)
-// Removed in v9
+#if (IPP_VERSION_MAJOR <= 7)
+// Deprecated in v8, removed in v9
 template<>
 inline void v_interleave(float *const BQ_R__ dst,
                          const float *const BQ_R__ *const BQ_R__ src,
@@ -1085,8 +1085,8 @@ inline void v_deinterleave(T *const BQ_R__ *const BQ_R__ dst,
 }
 
 #if defined HAVE_IPP
-#if (IPP_VERSION_MAJOR <= 8)
-// Removed in v9
+#if (IPP_VERSION_MAJOR <= 7)
+// Deprecated in v8, removed in v9
 template<>
 inline void v_deinterleave(float *const BQ_R__ *const BQ_R__ dst,
                            const float *const BQ_R__ src,
