@@ -71,7 +71,7 @@ LIBRARY	:= libbqvec.a
 
 all:	$(LIBRARY) timings
 
-test:	timings test-vectorops test-vectorops-complex
+test:	$(LIBRARY) timings test-vectorops test-vectorops-complex
 	./test-vectorops && ./test-vectorops-complex
 
 $(LIBRARY):	$(OBJECTS)
