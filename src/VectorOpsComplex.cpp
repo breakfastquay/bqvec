@@ -83,6 +83,8 @@ float approximate_atan2f(float real, float imag)
             if (imag < 0.f) atan -= pi;
         }
     }
+
+    return atan;
 }
 #endif
 
@@ -230,6 +232,39 @@ v_polar_to_cartesian(bq_complex_t *const BQ_R__ dst,
     }
 }
 
+void
+v_cartesian_to_polar(bq_complex_element_t *const BQ_R__ mag,
+                     bq_complex_element_t *const BQ_R__ phase,
+                     const bq_complex_t *const BQ_R__ src,
+                     const int count)
+{
+    if (sizeof(bq_complex_element_t) == sizeof(float)) {
+	ippsCartToPolar_32fc((const Ipp32fc *)src,
+                             (float *)mag, (float *)phase,
+                             count);
+    } else {
+	ippsCartToPolar_64fc((const Ipp64fc *)src,
+                             (double *)mag, (double *)phase,
+                             count);
+    }
+}
+
+void
+v_cartesian_to_magnitudes(bq_complex_element_t *const BQ_R__ mag,
+                          const bq_complex_t *const BQ_R__ src,
+                          const int count)
+{
+    if (sizeof(bq_complex_element_t) == sizeof(float)) {
+        ippsMagnitude_32fc((const Ipp32fc *)src,
+                           (float *)mag,
+                           count);
+    } else {
+        ippsMagnitude_64fc((const Ipp64fc *)src,
+                           (double *)mag,
+                           count);
+    }
+}
+
 #elif defined HAVE_VDSP
 
 void
@@ -256,6 +291,76 @@ v_polar_to_cartesian(bq_complex_t *const BQ_R__ dst,
     }
 }    
 
+void
+v_cartesian_to_polar(bq_complex_element_t *const BQ_R__ mag,
+                     bq_complex_element_t *const BQ_R__ phase,
+                     const bq_complex_t *const BQ_R__ src,
+                     const int count)
+{
+    //!!! update for vdsp
+    for (int i = 0; i < count; ++i) {
+        c_magphase<bq_complex_element_t>(mag + i, phase + i,
+                                         src[i].re, src[i].im);
+    }
+}
+
+void
+v_cartesian_to_magnitudes(bq_complex_element_t *const BQ_R__ mag,
+                          const bq_complex_t *const BQ_R__ src,
+                          const int count);
+{
+    //!!! update for vdsp
+    for (int i = 0; i < count; ++i) {
+        mag[i] = sqrt(src[i].re * src[i].re + src[i].im * src[i].im);
+    }
+}
+
+#elif defined USE_POMMIER_MATHFUN
+
+void
+v_polar_to_cartesian(bq_complex_t *const BQ_R__ dst,
+		     const bq_complex_element_t *const BQ_R__ mag,
+		     const bq_complex_element_t *const BQ_R__ phase,
+		     const int count)
+{
+    if (sizeof(bq_complex_element_t) == sizeof(float)) {
+        v_polar_to_cartesian_interleaved_pommier((float *)dst,
+                                                 (const float *)mag,
+                                                 (const float *)phase,
+                                                 count);
+    } else {
+        for (int i = 0; i < count; ++i) {
+            dst[i] = c_phasor(phase[i]);
+        }
+        for (int i = 0; i < count; ++i) {
+            dst[i].re *= mag[i];
+            dst[i].im *= mag[i];
+        }            
+    }
+}    
+
+void
+v_cartesian_to_polar(bq_complex_element_t *const BQ_R__ mag,
+                     bq_complex_element_t *const BQ_R__ phase,
+                     const bq_complex_t *const BQ_R__ src,
+                     const int count)
+{
+    for (int i = 0; i < count; ++i) {
+        c_magphase<bq_complex_element_t>(mag + i, phase + i,
+                                         src[i].re, src[i].im);
+    }
+}
+
+void
+v_cartesian_to_magnitudes(bq_complex_element_t *const BQ_R__ mag,
+                          const bq_complex_t *const BQ_R__ src,
+                          const int count)
+{
+    for (int i = 0; i < count; ++i) {
+        mag[i] = sqrt(src[i].re * src[i].re + src[i].im * src[i].im);
+    }
+}
+
 #else
 
 void
@@ -272,6 +377,28 @@ v_polar_to_cartesian(bq_complex_t *const BQ_R__ dst,
         dst[i].im *= mag[i];
     }
 }    
+
+void
+v_cartesian_to_polar(bq_complex_element_t *const BQ_R__ mag,
+                     bq_complex_element_t *const BQ_R__ phase,
+                     const bq_complex_t *const BQ_R__ src,
+                     const int count)
+{
+    for (int i = 0; i < count; ++i) {
+        c_magphase<bq_complex_element_t>(mag + i, phase + i,
+                                         src[i].re, src[i].im);
+    }
+}
+
+void
+v_cartesian_to_magnitudes(bq_complex_element_t *const BQ_R__ mag,
+                          const bq_complex_t *const BQ_R__ src,
+                          const int count)
+{
+    for (int i = 0; i < count; ++i) {
+        mag[i] = sqrt(src[i].re * src[i].re + src[i].im * src[i].im);
+    }
+}
 
 #endif
 
@@ -365,6 +492,6 @@ v_polar_interleaved_to_cartesian_inplace(bq_complex_element_t *const BQ_R__ srcd
     }
 }
 
-#endif
+#endif // NO_COMPLEX_TYPES
 
 }

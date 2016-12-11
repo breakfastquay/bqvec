@@ -39,8 +39,10 @@
 namespace breakfastquay {
 
 #ifndef NO_COMPLEX_TYPES
-// Convertible with other complex types that store re+im consecutively
+
 typedef double bq_complex_element_t;
+
+// Convertible with other complex types that store re+im consecutively
 struct bq_complex_t {
     bq_complex_element_t re;
     bq_complex_element_t im;

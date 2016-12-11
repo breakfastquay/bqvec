@@ -372,16 +372,10 @@ void v_polar_interleaved_to_cartesian(bq_complex_t *const BQ_R__ dst,
                                       const bq_complex_element_t *const BQ_R__ src,
                                       const int count);
 
-inline void v_cartesian_to_polar(bq_complex_element_t *const BQ_R__ mag,
-                                 bq_complex_element_t *const BQ_R__ phase,
-                                 const bq_complex_t *const BQ_R__ src,
-                                 const int count)
-{
-    for (int i = 0; i < count; ++i) {
-        c_magphase<bq_complex_element_t>(mag + i, phase + i,
-                                         src[i].re, src[i].im);
-    }
-}
+void v_cartesian_to_polar(bq_complex_element_t *const BQ_R__ mag,
+                          bq_complex_element_t *const BQ_R__ phase,
+                          const bq_complex_t *const BQ_R__ src,
+                          const int count);
 
 inline void v_cartesian_to_polar_interleaved(bq_complex_element_t *const BQ_R__ dst,
                                              const bq_complex_t *const BQ_R__ src,
@@ -393,14 +387,9 @@ inline void v_cartesian_to_polar_interleaved(bq_complex_element_t *const BQ_R__ 
     }
 }
 
-inline void v_cartesian_to_magnitudes(bq_complex_element_t *const BQ_R__ mag,
-                                      const bq_complex_t *const BQ_R__ src,
-                                      const int count)
-{
-    for (int i = 0; i < count; ++i) {
-        mag[i] = sqrt(src[i].re * src[i].re + src[i].im * src[i].im);
-    }
-}
+void v_cartesian_to_magnitudes(bq_complex_element_t *const BQ_R__ mag,
+                               const bq_complex_t *const BQ_R__ src,
+                               const int count);
 
 #endif // !NO_COMPLEX_TYPES
 
@@ -448,7 +437,47 @@ void v_polar_to_cartesian_interleaved(T *const BQ_R__ dst,
     }
 }    
 
-#if defined USE_POMMIER_MATHFUN
+#ifdef HAVE_IPP
+template<>
+inline void v_polar_to_cartesian(float *const BQ_R__ real,
+                                 float *const BQ_R__ imag,
+                                 const float *const BQ_R__ mag,
+                                 const float *const BQ_R__ phase,
+                                 const int count)
+{
+    ippsPolarToCart_32f(mag, phase, real, imag, count);
+}    
+    
+template<>
+inline void v_polar_to_cartesian(double *const BQ_R__ real,
+                                 double *const BQ_R__ imag,
+                                 const double *const BQ_R__ mag,
+                                 const double *const BQ_R__ phase,
+                                 const int count)
+{
+    ippsPolarToCart_64f(mag, phase, real, imag, count);
+}    
+    
+template<>
+inline void v_polar_to_cartesian_interleaved(float *const BQ_R__ dst,
+                                             const float *const BQ_R__ mag,
+                                             const float *const BQ_R__ phase,
+                                             const int count)
+{
+    ippsPolarToCart_32fc(mag, phase, (Ipp32fc *)dst, count);
+}    
+
+template<>
+inline void v_polar_to_cartesian_interleaved(double *const BQ_R__ dst,
+                                             const double *const BQ_R__ mag,
+                                             const double *const BQ_R__ phase,
+                                             const int count)
+{
+    ippsPolarToCart_64fc(mag, phase, (Ipp64fc *)dst, count);
+}
+
+#elif defined USE_POMMIER_MATHFUN
+
 void v_polar_to_cartesian_pommier(float *const BQ_R__ real,
                                   float *const BQ_R__ imag,
                                   const float *const BQ_R__ mag,
@@ -511,7 +540,48 @@ void v_cartesian_interleaved_to_polar(T *const BQ_R__ mag,
     }
 }
 
-#ifdef HAVE_VDSP
+#ifdef HAVE_IPP
+
+template<>
+inline void v_cartesian_to_polar(float *const BQ_R__ mag,
+                                 float *const BQ_R__ phase,
+                                 const float *const BQ_R__ real,
+                                 const float *const BQ_R__ imag,
+                                 const int count)
+{
+    ippsCartToPolar_32f(real, imag, mag, phase, count);
+}
+
+template<>
+inline void v_cartesian_interleaved_to_polar(float *const BQ_R__ mag,
+                                             float *const BQ_R__ phase,
+                                             const float *const BQ_R__ src,
+                                             const int count)
+{
+    ippsCartToPolar_32fc((const Ipp32fc *)src, mag, phase, count);
+}
+
+template<>
+inline void v_cartesian_to_polar(double *const BQ_R__ mag,
+                                 double *const BQ_R__ phase,
+                                 const double *const BQ_R__ real,
+                                 const double *const BQ_R__ imag,
+                                 const int count)
+{
+    ippsCartToPolar_64f(real, imag, mag, phase, count);
+}
+
+template<>
+inline void v_cartesian_interleaved_to_polar(double *const BQ_R__ mag,
+                                             double *const BQ_R__ phase,
+                                             const double *const BQ_R__ src,
+                                             const int count)
+{
+    ippsCartToPolar_64fc((const Ipp64fc *)src, mag, phase, count);
+}
+
+#elif defined HAVE_VDSP
+
 template<>
 inline void v_cartesian_to_polar(float *const BQ_R__ mag,
                                  float *const BQ_R__ phase,
@@ -526,6 +596,7 @@ inline void v_cartesian_to_polar(float *const BQ_R__ mag,
     vvsqrtf(mag, phase, &count); // using phase as the source
     vvatan2f(phase, imag, real, &count);
 }
+
 template<>
 inline void v_cartesian_to_polar(double *const BQ_R__ mag,
                                  double *const BQ_R__ phase,
@@ -575,6 +646,42 @@ void v_cartesian_interleaved_to_magnitudes(T *const BQ_R__ mag,
         mag[i] = sqrt(src[i*2] * src[i*2] + src[i*2+1] * src[i*2+1]);
     }
 }
+
+#ifdef HAVE_IPP
+template<>
+inline void v_cartesian_to_magnitudes(float *const BQ_R__ mag,
+                                      const float *const BQ_R__ real,
+                                      const float *const BQ_R__ imag,
+                                      const int count)
+{
+    ippsMagnitude_32f(real, imag, mag, count);
+}
+
+template<>
+inline void v_cartesian_to_magnitudes(double *const BQ_R__ mag,
+                                      const double *const BQ_R__ real,
+                                      const double *const BQ_R__ imag,
+                                      const int count)
+{
+    ippsMagnitude_64f(real, imag, mag, count);
+}
+
+template<>
+inline void v_cartesian_interleaved_to_magnitudes(float *const BQ_R__ mag,
+                                                  const float *const BQ_R__ src,
+                                                  const int count)
+{
+    ippsMagnitude_32fc((const Ipp32fc *)src, mag, count);
+}
+
+template<>
+inline void v_cartesian_interleaved_to_magnitudes(double *const BQ_R__ mag,
+                                                  const double *const BQ_R__ src,
+                                                  const int count)
+{
+    ippsMagnitude_64fc((const Ipp64fc *)src, mag, count);
+}
+#endif
 
 }
 
