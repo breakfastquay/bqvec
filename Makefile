@@ -86,10 +86,10 @@ timings: $(TIMINGS_OBJECTS) $(LIBRARY)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(THIRD_PARTY_LIBS)
 
 test-vectorops:	test/TestVectorOps.o
-	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework $(THIRD_PARTY_LIBS) -L. -lbqvec
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework -L. -lbqvec $(THIRD_PARTY_LIBS)
 
 test-vectorops-complex:	test/TestVectorOpsComplex.o
-	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework $(THIRD_PARTY_LIBS) -L. -lbqvec
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework -L. -lbqvec $(THIRD_PARTY_LIBS)
 
 clean:		
 	rm -f $(OBJECTS) $(TEST_OBJECTS) $(TIMINGS_OBJECTS)
