@@ -7,9 +7,17 @@
 #  -DHAVE_IPP    Intel's Integrated Performance Primitives are available
 #  -DHAVE_VDSP   Apple's Accelerate framework is available
 #
-# These are optional (they affect performance, not function) and you
-# may define more than one of them.
-# 
+# The above are optional (they affect performance, not function) and
+# you may define more than one of them.
+#
+# The following two options trade off speed against precision for single-
+# precision paths in cases where IPP and VDSP are not available:
+#
+#  -DUSE_POMMIER_MATHFUN    Use Julien Pommier's SSE/NEON implementation
+#                of sincos in 32-bit polar-to-cartesian conversion
+#  -DUSE_APPROXIMATE_ATAN2  Use a quick atan2 approximation in 32-bit
+#                cartesian-to-polar conversion
+#
 # Add any relevant -I flags for include paths as well.
 #
 # Note that you must supply the same flags when including bqvec
