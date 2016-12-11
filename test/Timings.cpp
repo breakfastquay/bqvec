@@ -10,6 +10,8 @@
 using namespace std;
 using namespace breakfastquay;
 
+//!!! This is nonsense. TODO: Replace it with sense.
+
 #ifdef _WIN32
 #define drand48() (-1+2*((float)rand())/RAND_MAX)
 #endif
@@ -58,9 +60,9 @@ testMultiply()
 	 << ", last = " << last << endl;
 
     int iterations = 50000;
-    cerr << "Iterations: " << iterations << endl;
+//    cerr << "Iterations: " << iterations << endl;
 	
-    cerr << "CLOCKS_PER_SEC = " << CLOCKS_PER_SEC << endl;
+//    cerr << "CLOCKS_PER_SEC = " << CLOCKS_PER_SEC << endl;
     float divisor = float(CLOCKS_PER_SEC) / 1000.f;
 
     clock_t start = clock();
@@ -95,8 +97,8 @@ testPolarToCart()
 
     const int N = 1024;
     bq_complex_t target[N];
-    double mag[N];
-    double phase[N];
+    bq_complex_element_t mag[N];
+    bq_complex_element_t phase[N];
 
     for (int i = 0; i < N; ++i) {
 	mag[i] = drand48();
@@ -131,9 +133,9 @@ testPolarToCart()
 	 << ", last = " << last << endl;
 
     int iterations = 10000;
-    cerr << "Iterations: " << iterations << endl;
+//    cerr << "Iterations: " << iterations << endl;
 	
-    cerr << "CLOCKS_PER_SEC = " << CLOCKS_PER_SEC << endl;
+//    cerr << "CLOCKS_PER_SEC = " << CLOCKS_PER_SEC << endl;
     float divisor = float(CLOCKS_PER_SEC) / 1000.f;
 
     clock_t start = clock();
@@ -169,7 +171,7 @@ testPolarToCartInterleaved()
 
     const int N = 1024;
     bq_complex_t target[N];
-    double source[N*2];
+    bq_complex_element_t source[N*2];
 
     for (int i = 0; i < N; ++i) {
 	source[i*2] = drand48();
@@ -204,9 +206,9 @@ testPolarToCartInterleaved()
 	 << ", last = " << last << endl;
 
     int iterations = 10000;
-    cerr << "Iterations: " << iterations << endl;
+//    cerr << "Iterations: " << iterations << endl;
 	
-    cerr << "CLOCKS_PER_SEC = " << CLOCKS_PER_SEC << endl;
+//    cerr << "CLOCKS_PER_SEC = " << CLOCKS_PER_SEC << endl;
     float divisor = float(CLOCKS_PER_SEC) / 1000.f;
 
     clock_t start = clock();
@@ -235,11 +237,86 @@ testPolarToCartInterleaved()
     return true;
 }
 
+bool
+testCartToPolar()
+{
+    cerr << "testVectorOps: testing v_cartesian_to_polar" << endl;
+
+    const int N = 1024;
+    bq_complex_t source[N];
+    bq_complex_element_t mag[N];
+    bq_complex_element_t phase[N];
+
+    for (int i = 0; i < N; ++i) {
+        source[i].re = (drand48() * 2.0) - 1.0;
+        source[i].im = (drand48() * 2.0) - 1.0;
+    }
+
+    double mean, first, last, total = 0;
+    for (int i = 0; i < N; ++i) {
+        double mag = sqrt(source[i].re * source[i].re + source[i].im * source[i].im);
+        double phase = atan2(source[i].im, source[i].re);
+	if (i == 0) first = mag;
+	if (i == N-1) last = phase;
+	total += mag;
+	total += phase;
+    }
+    mean = total / (N*2);
+    cerr << "Naive method: mean = " << mean << ", first = " << first
+	 << ", last = " << last << endl;
+
+    v_cartesian_to_polar(mag, phase, source, N);
+
+    total = 0;
+
+    for (int i = 0; i < N; ++i) {
+	if (i == 0) first = mag[i];
+	if (i == N-1) last = phase[i];
+	total += mag[i];
+	total += phase[i];
+    }
+    mean = total / (N*2);
+    cerr << "v_cartesian_to_polar: mean = " << mean << ", first = " << first
+	 << ", last = " << last << endl;
+
+    int iterations = 10000;
+//    cerr << "Iterations: " << iterations << endl;
+	
+//    cerr << "CLOCKS_PER_SEC = " << CLOCKS_PER_SEC << endl;
+    float divisor = float(CLOCKS_PER_SEC) / 1000.f;
+
+    clock_t start = clock();
+
+    for (int j = 0; j < iterations; ++j) {
+	for (int i = 0; i < N; ++i) {
+            mag[i] = sqrt(source[i].re * source[i].re + source[i].im * source[i].im);
+            phase[i] = atan2(source[i].im, source[i].re);
+	}
+    }
+    
+    clock_t end = clock();
+
+    cerr << "Time for naive method: " << float(end - start)/divisor << endl;
+
+    start = clock();
+
+    for (int j = 0; j < iterations; ++j) {
+        v_cartesian_to_polar(mag, phase, source, N);
+    }
+    
+    end = clock();
+
+    cerr << "Time for v_cartesian_to_polar: " << float(end - start)/divisor << endl;
+
+    return true;
+}
+
 int main(int argc, char **argv)
 {
     if (!testMultiply()) return 1;
     if (!testPolarToCart()) return 1;
     if (!testPolarToCartInterleaved()) return 1;
+    if (!testCartToPolar()) return 1;
     return 0;
 }
 
