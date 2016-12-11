@@ -88,6 +88,16 @@ BOOST_AUTO_TEST_CASE(multiply_to)
     COMPARE_N(o, expected, 3);
 }
 
+BOOST_AUTO_TEST_CASE(multiply_and_add)
+{
+    double a[] = { 1.0, 2.0, 3.0 };
+    double b[] = { -1.0, 3.0, -4.5 };
+    double c[] = { 3.0, -1.0, 4.0 };
+    double expected[] = { 2.0, 5.0, -9.5 };
+    v_multiply_and_add(c, a, b, 3);
+    COMPARE_N(c, expected, 3);
+}
+
 BOOST_AUTO_TEST_CASE(divide)
 {
     double a[] = { 1.0, 2.0, 3.0 };
