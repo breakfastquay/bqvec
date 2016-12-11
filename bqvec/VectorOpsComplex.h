@@ -6,7 +6,7 @@
     A small library for vector arithmetic and allocation in C++ using
     raw C pointer arrays.
 
-    Copyright 2007-2015 Particular Programs Ltd.
+    Copyright 2007-2016 Particular Programs Ltd.
 
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
@@ -61,7 +61,7 @@ inline void v_zero(bq_complex_t *const BQ_R__ ptr,
     } else {
         vDSP_vclrD((double *)ptr, 1, count * 2);
     }
-#else
+#else // ! HAVE_VDSP
     const bq_complex_element_t value = 0.0;
     for (int i = 0; i < count; ++i) {
         ptr[i].re = value;
@@ -93,7 +93,7 @@ inline void v_move(bq_complex_t *const BQ_R__ dst,
         ippsMove_64fc((const Ipp64fc *)src, (Ipp64fc *)dst, count);
     }
 }
-#endif
+#endif // HAVE_IPP
 
 template<>
 inline void v_convert(bq_complex_t *const BQ_R__ dst,
@@ -120,19 +120,19 @@ inline void v_convert(bq_complex_element_t *const BQ_R__ dst,
     }
 }
 
-inline void c_add(bq_complex_t &dst,
+inline void c_add(bq_complex_t &srcdst,
                   const bq_complex_t &src)
 {
-    dst.re += src.re;
-    dst.im += src.im;
+    srcdst.re += src.re;
+    srcdst.im += src.im;
 }
 
-inline void c_add_with_gain(bq_complex_t &dst,
+inline void c_add_with_gain(bq_complex_t &srcdst,
                             const bq_complex_t &src,
                             const bq_complex_element_t gain)
 {
-    dst.re += src.re * gain;
-    dst.im += src.im * gain;
+    srcdst.re += src.re * gain;
+    srcdst.im += src.im * gain;
 }
 
 inline void c_multiply(bq_complex_t &dst,
@@ -159,75 +159,75 @@ inline void c_multiply(bq_complex_t &dst,
     dst.im = imag;
 }
 
-inline void c_multiply(bq_complex_t &dst,
+inline void c_multiply(bq_complex_t &srcdst,
                        const bq_complex_t &src)
 {
-    c_multiply(dst, dst, src);
+    c_multiply(srcdst, srcdst, src);
 }
 
-inline void c_multiply_and_add(bq_complex_t &dst,
+inline void c_multiply_and_add(bq_complex_t &srcdst,
                                const bq_complex_t &src1,
                                const bq_complex_t &src2)
 {
     bq_complex_t tmp;
     c_multiply(tmp, src1, src2);
-    c_add(dst, tmp);
+    c_add(srcdst, tmp);
 }
 
 template<>
-inline void v_add(bq_complex_t *const BQ_R__ dst,
+inline void v_add(bq_complex_t *const BQ_R__ srcdst,
                   const bq_complex_t *const BQ_R__ src,
                   const int count)
 {
 #if defined HAVE_IPP
     if (sizeof(bq_complex_element_t) == sizeof(float)) {
-        ippsAdd_32fc_I((Ipp32fc *)src, (Ipp32fc *)dst, count);
+        ippsAdd_32fc_I((Ipp32fc *)src, (Ipp32fc *)srcdst, count);
     } else {
-        ippsAdd_64fc_I((Ipp64fc *)src, (Ipp64fc *)dst, count);
+        ippsAdd_64fc_I((Ipp64fc *)src, (Ipp64fc *)srcdst, count);
     }
 #else
     for (int i = 0; i < count; ++i) {
-        dst[i].re += src[i].re;
-        dst[i].im += src[i].im;
+        srcdst[i].re += src[i].re;
+        srcdst[i].im += src[i].im;
     }
-#endif
+#endif // HAVE_IPP
 }    
 
 template<>
-inline void v_add_with_gain(bq_complex_t *const BQ_R__ dst,
+inline void v_add_with_gain(bq_complex_t *const BQ_R__ srcdst,
                             const bq_complex_t *const BQ_R__ src,
                             const bq_complex_element_t gain,
                             const int count)
 {
     for (int i = 0; i < count; ++i) {
-        dst[i].re += src[i].re * gain;
-        dst[i].im += src[i].im * gain;
+        srcdst[i].re += src[i].re * gain;
+        srcdst[i].im += src[i].im * gain;
     }
 }
 
 template<>
-inline void v_multiply(bq_complex_t *const BQ_R__ dst,
+inline void v_multiply(bq_complex_t *const BQ_R__ srcdst,
                        const bq_complex_t *const BQ_R__ src,
                        const int count)
 {
 #ifdef HAVE_IPP
     if (sizeof(bq_complex_element_t) == sizeof(float)) {
-        ippsMul_32fc_I((const Ipp32fc *)src, (Ipp32fc *)dst, count);
+        ippsMul_32fc_I((const Ipp32fc *)src, (Ipp32fc *)srcdst, count);
     } else {
-        ippsMul_64fc_I((const Ipp64fc *)src, (Ipp64fc *)dst, count);
+        ippsMul_64fc_I((const Ipp64fc *)src, (Ipp64fc *)srcdst, count);
     }
 #else
     for (int i = 0; i < count; ++i) {
-        c_multiply(dst[i], src[i]);
+        c_multiply(srcdst[i], src[i]);
     }
-#endif
+#endif // HAVE_IPP
 }
 
 template<>
-inline void v_multiply(bq_complex_t *const BQ_R__ dst,
-                       const bq_complex_t *const BQ_R__ src1,
-                       const bq_complex_t *const BQ_R__ src2,
-                       const int count)
+inline void v_multiply_to(bq_complex_t *const BQ_R__ dst,
+                          const bq_complex_t *const BQ_R__ src1,
+                          const bq_complex_t *const BQ_R__ src2,
+                          const int count)
 {
 #ifdef HAVE_IPP
     if (sizeof(bq_complex_element_t) == sizeof(float)) {
@@ -241,11 +241,11 @@ inline void v_multiply(bq_complex_t *const BQ_R__ dst,
     for (int i = 0; i < count; ++i) {
         c_multiply(dst[i], src1[i], src2[i]);
     }
-#endif
+#endif // HAVE_IPP
 }
 
 template<>
-inline void v_multiply_and_add(bq_complex_t *const BQ_R__ dst,
+inline void v_multiply_and_add(bq_complex_t *const BQ_R__ srcdst,
                                const bq_complex_t *const BQ_R__ src1,
                                const bq_complex_t *const BQ_R__ src2,
                                const int count)
@@ -253,16 +253,16 @@ inline void v_multiply_and_add(bq_complex_t *const BQ_R__ dst,
 #ifdef HAVE_IPP
     if (sizeof(bq_complex_element_t) == sizeof(float)) {
         ippsAddProduct_32fc((const Ipp32fc *)src1, (const Ipp32fc *)src2,
-                            (Ipp32fc *)dst, count);
+                            (Ipp32fc *)srcdst, count);
     } else {
         ippsAddProduct_64fc((const Ipp64fc *)src1, (const Ipp64fc *)src2,
-                            (Ipp64fc *)dst, count);
+                            (Ipp64fc *)srcdst, count);
     }
 #else
     for (int i = 0; i < count; ++i) {
-        c_multiply_and_add(dst[i], src1[i], src2[i]);
+        c_multiply_and_add(srcdst[i], src1[i], src2[i]);
     }
-#endif
+#endif // HAVE_IPP
 }
 
 #if defined( __GNUC__ ) && defined( _WIN32 )
@@ -279,7 +279,7 @@ static inline void sincosf(float fx, float *fsin, float *fcos) {
 }
 #endif
 
-#endif /* !NO_COMPLEX_TYPES */
+#endif // !NO_COMPLEX_TYPES
 
 template<typename T>
 inline void c_phasor(T *real, T *imag, T phase)
@@ -339,7 +339,7 @@ inline void c_magphase(float *mag, float *phase, float real, float imag)
     *phase = atan;
     *mag = sqrtf(real * real + imag * imag);
 }
-#else
+#else // !USE_APPROXIMATE_ATAN2
 template<>
 inline void c_magphase(float *mag, float *phase, float real, float imag)
 {
@@ -378,7 +378,8 @@ inline void v_cartesian_to_polar(bq_complex_element_t *const BQ_R__ mag,
                                  const int count)
 {
     for (int i = 0; i < count; ++i) {
-        c_magphase<bq_complex_element_t>(mag + i, phase + i, src[i].re, src[i].im);
+        c_magphase<bq_complex_element_t>(mag + i, phase + i,
+                                         src[i].re, src[i].im);
     }
 }
 
@@ -388,11 +389,20 @@ inline void v_cartesian_to_polar_interleaved(bq_complex_element_t *const BQ_R__ 
 {
     for (int i = 0; i < count; ++i) {
         c_magphase<bq_complex_element_t>(&dst[i*2], &dst[i*2+1],
-                                    src[i].re, src[i].im);
+                                         src[i].re, src[i].im);
     }
 }
 
-#endif /* !NO_COMPLEX_TYPES */
+inline void v_cartesian_to_magnitudes(bq_complex_element_t *const BQ_R__ mag,
+                                      const bq_complex_t *const BQ_R__ src,
+                                      const int count)
+{
+    for (int i = 0; i < count; ++i) {
+        mag[i] = sqrt(src[i].re * src[i].re + src[i].im * src[i].im);
+    }
+}
+
+#endif // !NO_COMPLEX_TYPES
 
 template<typename S, typename T> // S source, T target
 void v_polar_to_cartesian(T *const BQ_R__ real,
@@ -476,8 +486,7 @@ inline void v_polar_to_cartesian_interleaved(float *const BQ_R__ dst,
 {
     v_polar_to_cartesian_interleaved_pommier(dst, mag, phase, count);
 }
-
-#endif
+#endif // USE_POMMIER_MATHFUN
 
 template<typename S, typename T> // S source, T target
 void v_cartesian_to_polar(T *const BQ_R__ mag,
@@ -532,7 +541,7 @@ inline void v_cartesian_to_polar(double *const BQ_R__ mag,
     vvsqrt(mag, phase, &count); // using phase as the source
     vvatan2(phase, imag, real, &count);
 }
-#endif
+#endif // HAVE_VDSP
 
 template<typename T>
 void v_cartesian_to_polar_interleaved_inplace(T *const BQ_R__ srcdst,

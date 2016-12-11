@@ -44,7 +44,7 @@ testMultiply()
     cerr << "Naive method: mean = " << mean << ", first = " << first
 	 << ", last = " << last << endl;
 
-    v_multiply(target, src1, src2, N);
+    v_multiply_to(target, src1, src2, N);
     total = 0;
 
     for (int i = 0; i < N; ++i) {
@@ -78,7 +78,7 @@ testMultiply()
     start = clock();
 
     for (int j = 0; j < iterations; ++j) {
-        v_multiply(target, src1, src2, N);
+        v_multiply_to(target, src1, src2, N);
     }
     
     end = clock();

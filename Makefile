@@ -86,10 +86,10 @@ timings: $(TIMINGS_OBJECTS) $(LIBRARY)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(THIRD_PARTY_LIBS)
 
 test-vectorops:	test/TestVectorOps.o
-	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework $(THIRD_PARTY_LIBS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework $(THIRD_PARTY_LIBS) -L. -lbqvec
 
 test-vectorops-complex:	test/TestVectorOpsComplex.o
-	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework $(THIRD_PARTY_LIBS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework $(THIRD_PARTY_LIBS) -L. -lbqvec
 
 clean:		
 	rm -f $(OBJECTS) $(TEST_OBJECTS) $(TIMINGS_OBJECTS)
@@ -107,7 +107,10 @@ test/Timings.o: bqvec/VectorOpsComplex.h bqvec/VectorOps.h bqvec/Restrict.h
 test/Timings.o: bqvec/ComplexTypes.h
 test/Timings.o: bqvec/VectorOpsComplex.h bqvec/VectorOps.h bqvec/Restrict.h
 test/Timings.o: bqvec/ComplexTypes.h
-test/TestVectorOps.o: bqvec/VectorOps.h bqvec/Restrict.h
+test/TestVectorOpsComplex.o: bqvec/VectorOpsComplex.h bqvec/VectorOps.h
+test/TestVectorOpsComplex.o: bqvec/Restrict.h bqvec/ComplexTypes.h
+test/TestVectorOpsComplex.o: bqvec/VectorOps.h
+test/TestVectorOps.o: bqvec/VectorOps.h
 bqvec/RingBuffer.o: bqvec/Barrier.h bqvec/Allocators.h bqvec/Restrict.h
 bqvec/RingBuffer.o: bqvec/VectorOps.h
 bqvec/VectorOpsComplex.o: bqvec/VectorOps.h bqvec/Restrict.h

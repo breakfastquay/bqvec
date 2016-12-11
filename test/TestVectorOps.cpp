@@ -33,6 +33,15 @@ BOOST_AUTO_TEST_CASE(add)
     COMPARE_N(a, expected, 3);
 }
 
+BOOST_AUTO_TEST_CASE(add_with_gain)
+{
+    double a[] = { 1.0, 2.0, 3.0 };
+    double b[] = { -1.0, 3.0, -4.5 };
+    double expected[] = { -0.5, 6.5, -3.75 };
+    v_add_with_gain(a, b, 1.5, 3);
+    COMPARE_N(a, expected, 3);
+}
+
 BOOST_AUTO_TEST_CASE(subtract)
 {
     double a[] = { 1.0, 2.0, 3.0 };
@@ -67,6 +76,16 @@ BOOST_AUTO_TEST_CASE(multiply)
     double expected[] = { -1.0, 6.0, -13.5 };
     v_multiply(a, b, 3);
     COMPARE_N(a, expected, 3);
+}
+
+BOOST_AUTO_TEST_CASE(multiply_to)
+{
+    double a[] = { 1.0, 2.0, 3.0 };
+    double b[] = { -1.0, 3.0, -4.5 };
+    double o[3];
+    double expected[] = { -1.0, 6.0, -13.5 };
+    v_multiply_to(o, a, b, 3);
+    COMPARE_N(o, expected, 3);
 }
 
 BOOST_AUTO_TEST_CASE(divide)
