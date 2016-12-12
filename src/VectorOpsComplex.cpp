@@ -52,6 +52,10 @@
 #include <alloca.h>
 #endif
 
+#include <iostream>
+
+using namespace std;
+
 namespace breakfastquay {
 
 #ifdef USE_APPROXIMATE_ATAN2
@@ -297,11 +301,18 @@ v_cartesian_to_polar(bq_complex_element_t *const BQ_R__ mag,
                      const bq_complex_t *const BQ_R__ src,
                      const int count)
 {
-    //!!! update for vdsp
-    for (int i = 0; i < count; ++i) {
-        c_magphase<bq_complex_element_t>(mag + i, phase + i,
-                                         src[i].re, src[i].im);
+    bq_complex_element_t *im = (bq_complex_element_t *)
+	alloca(count * sizeof(bq_complex_element_t));
+    bq_complex_element_t *ri[] = { mag, im }; // using mag as temporary real arr
+    v_deinterleave(ri, (bq_complex_element_t *)src, 2, count);
+
+    if (sizeof(bq_complex_element_t) == sizeof(float)) {
+        vvatan2f((float *)phase, (float *)im, (float *)mag, &count);
+    } else {
+        vvatan2((double *)phase, (double *)im, (double *)mag, &count);
     }
+
+    v_cartesian_to_magnitudes(mag, src, count);
 }
 
 void
