@@ -6,7 +6,7 @@
     A small library for vector arithmetic and allocation in C++ using
     raw C pointer arrays.
 
-    Copyright 2007-2015 Particular Programs Ltd.
+    Copyright 2007-2016 Particular Programs Ltd.
 
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
@@ -219,8 +219,6 @@ v_polar_to_cartesian_interleaved_pommier(float *const BQ_R__ dst,
 
 #ifndef NO_COMPLEX_TYPES
 
-#if defined HAVE_IPP
-
 void
 v_polar_to_cartesian(bq_complex_t *const BQ_R__ dst,
 		     const bq_complex_element_t *const BQ_R__ mag,
@@ -228,11 +226,15 @@ v_polar_to_cartesian(bq_complex_t *const BQ_R__ dst,
 		     const int count)
 {
     if (sizeof(bq_complex_element_t) == sizeof(float)) {
-	ippsPolarToCart_32fc((const float *)mag, (const float *)phase,
-                             (Ipp32fc *)dst, count);
+        v_polar_to_cartesian_interleaved((float *)dst,
+                                         (const float *)mag,
+                                         (const float *)phase,
+                                         count);
     } else {
-	ippsPolarToCart_64fc((const double *)mag, (const double *)phase,
-                             (Ipp64fc *)dst, count);
+        v_polar_to_cartesian_interleaved((double *)dst,
+                                         (const double *)mag,
+                                         (const double *)phase,
+                                         count);
     }
 }
 
@@ -243,13 +245,15 @@ v_cartesian_to_polar(bq_complex_element_t *const BQ_R__ mag,
                      const int count)
 {
     if (sizeof(bq_complex_element_t) == sizeof(float)) {
-	ippsCartToPolar_32fc((const Ipp32fc *)src,
-                             (float *)mag, (float *)phase,
-                             count);
+        v_cartesian_interleaved_to_polar((float *)mag,
+                                         (float *)phase,
+                                         (const float *)src,
+                                         count);
     } else {
-	ippsCartToPolar_64fc((const Ipp64fc *)src,
-                             (double *)mag, (double *)phase,
-                             count);
+        v_cartesian_interleaved_to_polar((double *)mag,
+                                         (double *)phase,
+                                         (const double *)src,
+                                         count);
     }
 }
 
@@ -259,159 +263,15 @@ v_cartesian_to_magnitudes(bq_complex_element_t *const BQ_R__ mag,
                           const int count)
 {
     if (sizeof(bq_complex_element_t) == sizeof(float)) {
-        ippsMagnitude_32fc((const Ipp32fc *)src,
-                           (float *)mag,
-                           count);
+        v_cartesian_interleaved_to_magnitudes((float *)mag,
+                                              (const float *)src,
+                                              count);
     } else {
-        ippsMagnitude_64fc((const Ipp64fc *)src,
-                           (double *)mag,
-                           count);
+        v_cartesian_interleaved_to_magnitudes((double *)mag,
+                                              (const double *)src,
+                                              count);
     }
 }
-
-#elif defined HAVE_VDSP
-
-void
-v_polar_to_cartesian(bq_complex_t *const BQ_R__ dst,
-		     const bq_complex_element_t *const BQ_R__ mag,
-		     const bq_complex_element_t *const BQ_R__ phase,
-		     const int count)
-{
-    bq_complex_element_t *sc = (bq_complex_element_t *)
-	alloca(count * 2 * sizeof(bq_complex_element_t));
-
-    if (sizeof(bq_complex_element_t) == sizeof(float)) {
-        vvsincosf((float *)sc, (float *)(sc + count), (float *)phase, &count);
-    } else {
-        vvsincos((double *)sc, (double *)(sc + count), (double *)phase, &count);
-    }
-
-    int sini = 0;
-    int cosi = count;
-
-    for (int i = 0; i < count; ++i) {
-	dst[i].re = mag[i] * sc[cosi++];
-	dst[i].im = mag[i] * sc[sini++];
-    }
-}    
-
-void
-v_cartesian_to_polar(bq_complex_element_t *const BQ_R__ mag,
-                     bq_complex_element_t *const BQ_R__ phase,
-                     const bq_complex_t *const BQ_R__ src,
-                     const int count)
-{
-    bq_complex_element_t *im = (bq_complex_element_t *)
-	alloca(count * sizeof(bq_complex_element_t));
-    bq_complex_element_t *ri[] = { mag, im }; // using mag as temporary real arr
-    v_deinterleave(ri, (bq_complex_element_t *)src, 2, count);
-
-    if (sizeof(bq_complex_element_t) == sizeof(float)) {
-        vvatan2f((float *)phase, (float *)im, (float *)mag, &count);
-    } else {
-        vvatan2((double *)phase, (double *)im, (double *)mag, &count);
-    }
-
-    v_cartesian_to_magnitudes(mag, src, count);
-}
-
-void
-v_cartesian_to_magnitudes(bq_complex_element_t *const BQ_R__ mag,
-                          const bq_complex_t *const BQ_R__ src,
-                          const int count)
-{
-    //!!! update for vdsp
-    for (int i = 0; i < count; ++i) {
-        mag[i] = sqrt(src[i].re * src[i].re + src[i].im * src[i].im);
-    }
-}
-
-#elif defined USE_POMMIER_MATHFUN
-
-void
-v_polar_to_cartesian(bq_complex_t *const BQ_R__ dst,
-		     const bq_complex_element_t *const BQ_R__ mag,
-		     const bq_complex_element_t *const BQ_R__ phase,
-		     const int count)
-{
-    if (sizeof(bq_complex_element_t) == sizeof(float)) {
-        v_polar_to_cartesian_interleaved_pommier((float *)dst,
-                                                 (const float *)mag,
-                                                 (const float *)phase,
-                                                 count);
-    } else {
-        for (int i = 0; i < count; ++i) {
-            dst[i] = c_phasor(phase[i]);
-        }
-        for (int i = 0; i < count; ++i) {
-            dst[i].re *= mag[i];
-            dst[i].im *= mag[i];
-        }            
-    }
-}    
-
-void
-v_cartesian_to_polar(bq_complex_element_t *const BQ_R__ mag,
-                     bq_complex_element_t *const BQ_R__ phase,
-                     const bq_complex_t *const BQ_R__ src,
-                     const int count)
-{
-    for (int i = 0; i < count; ++i) {
-        c_magphase<bq_complex_element_t>(mag + i, phase + i,
-                                         src[i].re, src[i].im);
-    }
-}
-
-void
-v_cartesian_to_magnitudes(bq_complex_element_t *const BQ_R__ mag,
-                          const bq_complex_t *const BQ_R__ src,
-                          const int count)
-{
-    for (int i = 0; i < count; ++i) {
-        mag[i] = sqrt(src[i].re * src[i].re + src[i].im * src[i].im);
-    }
-}
-
-#else
-
-void
-v_polar_to_cartesian(bq_complex_t *const BQ_R__ dst,
-		     const bq_complex_element_t *const BQ_R__ mag,
-		     const bq_complex_element_t *const BQ_R__ phase,
-		     const int count)
-{
-    for (int i = 0; i < count; ++i) {
-	dst[i] = c_phasor(phase[i]);
-    }
-    for (int i = 0; i < count; ++i) {
-        dst[i].re *= mag[i];
-        dst[i].im *= mag[i];
-    }
-}    
-
-void
-v_cartesian_to_polar(bq_complex_element_t *const BQ_R__ mag,
-                     bq_complex_element_t *const BQ_R__ phase,
-                     const bq_complex_t *const BQ_R__ src,
-                     const int count)
-{
-    for (int i = 0; i < count; ++i) {
-        c_magphase<bq_complex_element_t>(mag + i, phase + i,
-                                         src[i].re, src[i].im);
-    }
-}
-
-void
-v_cartesian_to_magnitudes(bq_complex_element_t *const BQ_R__ mag,
-                          const bq_complex_t *const BQ_R__ src,
-                          const int count)
-{
-    for (int i = 0; i < count; ++i) {
-        mag[i] = sqrt(src[i].re * src[i].re + src[i].im * src[i].im);
-    }
-}
-
-#endif
 
 #if defined USE_POMMIER_MATHFUN
 
@@ -491,7 +351,6 @@ void
 v_polar_interleaved_to_cartesian_inplace(bq_complex_element_t *const BQ_R__ srcdst,
                                          const int count)
 {
-    // Not ideal
     bq_complex_element_t mag, phase;
     int ii = 0, io = 0;
     for (int i = 0; i < count; ++i) {

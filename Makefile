@@ -25,12 +25,12 @@
 # may find it simplest to just add the bqvec source files to your
 # application's build system and not build a bqvec library at all.)
 
-VECTOR_DEFINES	:= 
+VECTOR_DEFINES	:= -DHAVE_IPP
 
 # Add any related includes and libraries here
 #
-THIRD_PARTY_INCLUDES	:=                   # e.g. -I/opt/intel/ipp/include
-THIRD_PARTY_LIBS	:=                   # e.g. -L/opt/intel/ipp/lib/intel64_lin -Wl,-Bstatic -lipps -lippvm -lippcore -Wl,-Bdynamic
+THIRD_PARTY_INCLUDES	:= -I/opt/intel/ipp/include
+THIRD_PARTY_LIBS	:= -L/opt/intel/ipp/lib/intel64_lin -Wl,-Bstatic -lipps -lippvm -lippcore -Wl,-Bdynamic
 
 
 # Add to ALLOCATOR_DEFINES options relating to aligned malloc.
@@ -59,7 +59,7 @@ THIRD_PARTY_LIBS	:=                   # e.g. -L/opt/intel/ipp/lib/intel64_lin -W
 # may find it simplest to just add the bqvec source files to your
 # application's build system and not build a bqvec library at all.)
 
-ALLOCATOR_DEFINES :=
+ALLOCATOR_DEFINES := -DHAVE_POSIX_MEMALIGN
 
 
 SRC_DIR	:= src
