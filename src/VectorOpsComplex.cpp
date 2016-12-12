@@ -307,7 +307,7 @@ v_cartesian_to_polar(bq_complex_element_t *const BQ_R__ mag,
 void
 v_cartesian_to_magnitudes(bq_complex_element_t *const BQ_R__ mag,
                           const bq_complex_t *const BQ_R__ src,
-                          const int count);
+                          const int count)
 {
     //!!! update for vdsp
     for (int i = 0; i < count; ++i) {
