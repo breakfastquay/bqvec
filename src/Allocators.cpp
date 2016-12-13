@@ -40,6 +40,8 @@
 #endif
 
 #include <iostream>
+#include <climits>
+
 using std::cerr;
 using std::endl;
 
@@ -50,16 +52,44 @@ namespace breakfastquay {
 template <>
 float *allocate(size_t count)
 {
-    float *ptr = ippsMalloc_32f(count);
-    if (!ptr) throw (std::bad_alloc());
+    if (count > INT_MAX) {
+#ifndef NO_EXCEPTIONS
+        throw std::length_error("Size overflow in allocate");
+#else
+        abort();
+#endif
+    }
+    
+    float *ptr = ippsMalloc_32f(int(count));
+    if (!ptr) {
+#ifndef NO_EXCEPTIONS
+        throw (std::bad_alloc());
+#else
+        abort();
+#endif
+    }
     return ptr;
 }
 
 template <>
 double *allocate(size_t count)
 {
-    double *ptr = ippsMalloc_64f(count);
-    if (!ptr) throw (std::bad_alloc());
+    if (count > INT_MAX) {
+#ifndef NO_EXCEPTIONS
+        throw std::length_error("Size overflow in allocate");
+#else
+        abort();
+#endif
+    }
+    
+    double *ptr = ippsMalloc_64f(int(count));
+    if (!ptr) {
+#ifndef NO_EXCEPTIONS
+        throw (std::bad_alloc());
+#else
+        abort();
+#endif
+    }
     return ptr;
 }
 
