@@ -633,7 +633,7 @@ void v_cartesian_to_magnitudes(T *const BQ_R__ mag,
                                const int count)
 {
     for (int i = 0; i < count; ++i) {
-        mag[i] = sqrt(real[i] * real[i] + imag[i] * imag[i]);
+        mag[i] = T(sqrt(real[i] * real[i] + imag[i] * imag[i]));
     }
 }
 
@@ -643,7 +643,7 @@ void v_cartesian_interleaved_to_magnitudes(T *const BQ_R__ mag,
                                            const int count)
 {
     for (int i = 0; i < count; ++i) {
-        mag[i] = sqrt(src[i*2] * src[i*2] + src[i*2+1] * src[i*2+1]);
+        mag[i] = T(sqrt(src[i*2] * src[i*2] + src[i*2+1] * src[i*2+1]));
     }
 }
 

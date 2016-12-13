@@ -22,6 +22,7 @@ testMultiply()
     cerr << "testVectorOps: testing v_multiply complex" << endl;
 
     const int N = 1024;
+    //!!! todo: use aligned allocate(), otherwise results will vary randomly
     bq_complex_t target[N];
     bq_complex_t src1[N];
     bq_complex_t src2[N];
