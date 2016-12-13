@@ -340,7 +340,7 @@ public:
     }
 
     void
-    deallocate(T *const p, const size_t n) const {
+    deallocate(T *const p, const size_t) const {
         ::breakfastquay::deallocate(p);
     }
 
