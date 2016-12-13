@@ -38,11 +38,13 @@
 
 /*
  * Aligned and per-channel allocators and deallocators for raw C array
- * buffers.
+ * buffers and C++ STL vectors.
  */
 
-#include <new> // for std::bad_alloc
+#include <new>
 #include <stdlib.h>
+#include <stddef.h>
+#include <stdexcept>
 
 #ifndef HAVE_POSIX_MEMALIGN
 #ifndef _WIN32
@@ -67,7 +69,9 @@
 #endif
 
 #ifdef LACK_BAD_ALLOC
-namespace std { struct bad_alloc { }; }
+namespace std {
+    struct bad_alloc { };
+}
 #endif
 
 namespace breakfastquay {
@@ -78,6 +82,7 @@ T *allocate(size_t count)
     void *ptr = 0;
     // 32-byte alignment is required for at least OpenMAX
     static const int alignment = 32;
+
 #ifdef USE_OWN_ALIGNED_MALLOC
     // Alignment must be a power of two, bigger than the pointer
     // size. Stuff the actual malloc'd pointer in just before the
@@ -91,31 +96,39 @@ T *allocate(size_t count)
         ptr = ((char *)adj) + alignment;
         ((void **)ptr)[-1] = buf;
     }
+
 #else /* !USE_OWN_ALIGNED_MALLOC */
+
 #ifdef HAVE_POSIX_MEMALIGN
     if (posix_memalign(&ptr, alignment, count * sizeof(T))) {
         ptr = malloc(count * sizeof(T));
     }
 #else /* !HAVE_POSIX_MEMALIGN */
+
 #ifdef __MSVC__
     ptr = _aligned_malloc(count * sizeof(T), alignment);
 #else /* !__MSVC__ */
+
 #ifndef MALLOC_IS_ALIGNED
 #error "No aligned malloc available: define MALLOC_IS_ALIGNED to stick with system malloc, HAVE_POSIX_MEMALIGN if posix_memalign is available, or USE_OWN_ALIGNED_MALLOC to roll our own"
 #endif
+
     // Note that malloc always aligns to 16 byte boundaries on OS/X
     ptr = malloc(count * sizeof(T));
     (void)alignment; // avoid compiler warning for unused 
+
 #endif /* !__MSVC__ */
 #endif /* !HAVE_POSIX_MEMALIGN */
 #endif /* !USE_OWN_ALIGNED_MALLOC */
+
     if (!ptr) {
 #ifndef NO_EXCEPTIONS
-        throw(std::bad_alloc());
+        throw std::bad_alloc();
 #else
         abort();
 #endif
     }
+
     return (T *)ptr;
 }
 
@@ -142,15 +155,21 @@ T *allocate_and_zero(size_t count)
 template <typename T>
 void deallocate(T *ptr)
 {
+
 #ifdef USE_OWN_ALIGNED_MALLOC
     if (ptr) free(((void **)ptr)[-1]);
 #else /* !USE_OWN_ALIGNED_MALLOC */
+
 #ifdef __MSVC__
     if (ptr) _aligned_free((void *)ptr);
 #else /* !__MSVC__ */
+
+    // Acceptable for both malloc and posix_memalign
     if (ptr) free((void *)ptr);
+
 #endif /* !__MSVC__ */
 #endif /* !USE_OWN_ALIGNED_MALLOC */
+
 }
 
 #ifdef HAVE_IPP
@@ -168,8 +187,9 @@ template <typename T>
 T *reallocate(T *ptr, size_t oldcount, size_t count)
 {
     T *newptr = allocate<T>(count);
+    size_t tocopy = std::min(oldcount, count);
     if (oldcount && ptr) {
-        for (size_t i = 0; i < oldcount && i < count; ++i) {
+        for (size_t i = 0; i < tocopy; ++i) {
             newptr[i] = ptr[i];
         }
     }
@@ -269,15 +289,109 @@ T **reallocate_and_zero_extend_channels(T **ptr,
     return newptr;
 }
 
-/// RAII class to call deallocate() on destruction
+
+/** Trivial RAII class to call deallocate() on destruction.
+ */
 template <typename T>
 class Deallocator
 {
 public:
     Deallocator(T *t) : m_t(t) { }
     ~Deallocator() { deallocate<T>(m_t); }
+
 private:
     T *m_t;
+};
+
+
+/** Allocator for use with STL classes, e.g. vector, to ensure
+ *  alignment.  Based on example code by Stephan T. Lavavej.
+ *
+ *  e.g. std::vector<float, StlAllocator<float> > v;
+ */
+template <typename T>
+class StlAllocator
+{
+public:
+    typedef T *pointer;
+    typedef const T *const_pointer;
+    typedef T &reference;
+    typedef const T &const_reference;
+    typedef T value_type;
+    typedef size_t size_type;
+    typedef ptrdiff_t difference_type;
+
+    StlAllocator() { }
+    StlAllocator(const StlAllocator&) { }
+    template <typename U> StlAllocator(const StlAllocator<U>&) { }
+    ~StlAllocator() { }
+
+    T *
+    allocate(const size_t n) const {
+        if (n == 0) return 0;
+        if (n > max_size()) {
+#ifndef NO_EXCEPTIONS
+            throw std::length_error("Size overflow in StlAllocator::allocate()");
+#else
+            abort();
+#endif
+        }
+        return ::breakfastquay::allocate<T>(n);
+    }
+
+    void
+    deallocate(T *const p, const size_t n) const {
+        ::breakfastquay::deallocate(p);
+    }
+
+    template <typename U>
+    T *
+    allocate(const size_t n, const U *) const {
+        return allocate(n);
+    }
+
+    T *
+    address(T &r) const {
+        return &r;
+    }
+
+    const T *
+    address(const T &s) const {
+        return &s;
+    }
+
+    size_t
+    max_size() const {
+        return (static_cast<size_t>(0) - static_cast<size_t>(1)) / sizeof(T);
+    }
+
+    template <typename U> struct rebind {
+        typedef StlAllocator<U> other;
+    };
+    
+    bool
+    operator==(const StlAllocator &other) const {
+        return true;
+    }
+
+    bool
+    operator!=(const StlAllocator &other) const {
+        return false;
+    }
+
+    void
+    construct(T *const p, const T &t) const {
+        void *const pv = static_cast<void *>(p);
+        new (pv) T(t);
+    }
+
+    void
+    destroy(T *const p) const {
+        p->~T();
+    }
+
+private:
+    StlAllocator& operator=(const StlAllocator&);
 };
 
 }

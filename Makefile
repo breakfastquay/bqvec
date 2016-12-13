@@ -84,8 +84,11 @@ LIBRARY	:= libbqvec.a
 
 all:	$(LIBRARY) timings
 
-test:	$(LIBRARY) timings test-vectorops test-vectorops-complex
-	./test-vectorops && ./test-vectorops-complex
+test:	$(LIBRARY) timings test-allocators test-vectorops test-vectorops-complex
+	./test-allocators && ./test-vectorops && ./test-vectorops-complex
+
+valgrind:	$(LIBRARY) timings test-allocators test-vectorops test-vectorops-complex
+	valgrind ./test-allocators && valgrind ./test-vectorops && valgrind ./test-vectorops-complex
 
 $(LIBRARY):	$(OBJECTS)
 	$(AR) rc $@ $^
@@ -93,17 +96,20 @@ $(LIBRARY):	$(OBJECTS)
 timings: $(TIMINGS_OBJECTS) $(LIBRARY)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(THIRD_PARTY_LIBS)
 
-test-vectorops:	test/TestVectorOps.o
+test-allocators:	test/TestAllocators.o $(LIBRARY)
 	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework -L. -lbqvec $(THIRD_PARTY_LIBS)
 
-test-vectorops-complex:	test/TestVectorOpsComplex.o
+test-vectorops:	test/TestVectorOps.o $(LIBRARY)
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework -L. -lbqvec $(THIRD_PARTY_LIBS)
+
+test-vectorops-complex:	test/TestVectorOpsComplex.o $(LIBRARY)
 	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework -L. -lbqvec $(THIRD_PARTY_LIBS)
 
 clean:		
 	rm -f $(OBJECTS) $(TEST_OBJECTS) $(TIMINGS_OBJECTS)
 
 distclean:	clean
-	rm -f $(LIBRARY) test-vectorops test-vectorops-complex
+	rm -f $(LIBRARY) test-allocators test-vectorops test-vectorops-complex
 
 depend:
 	makedepend -Y -fMakefile $(SOURCES) $(TIMINGS_SOURCES) $(TEST_SOURCES) $(HEADERS)
