@@ -187,8 +187,9 @@ template <typename T>
 T *reallocate(T *ptr, size_t oldcount, size_t count)
 {
     T *newptr = allocate<T>(count);
-    size_t tocopy = std::min(oldcount, count);
     if (oldcount && ptr) {
+        size_t tocopy = oldcount;
+        if (count < oldcount) tocopy = count;
         for (size_t i = 0; i < tocopy; ++i) {
             newptr[i] = ptr[i];
         }
@@ -370,12 +371,12 @@ public:
     };
     
     bool
-    operator==(const StlAllocator &other) const {
+    operator==(const StlAllocator &) const {
         return true;
     }
 
     bool
-    operator!=(const StlAllocator &other) const {
+    operator!=(const StlAllocator &) const {
         return false;
     }
 
