@@ -45,7 +45,7 @@
 #endif
 #endif
 
-#ifdef __MSVC__
+#ifdef _MSC_VER
 #include <malloc.h>
 #define alloca _alloca
 #else
