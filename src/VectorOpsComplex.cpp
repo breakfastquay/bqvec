@@ -45,9 +45,11 @@
 #endif
 #endif
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(WIN32)
 #include <malloc.h>
+#ifndef alloca
 #define alloca _alloca
+#endif
 #else
 #include <alloca.h>
 #endif
