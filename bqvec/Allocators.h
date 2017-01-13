@@ -47,25 +47,36 @@
 #include <stdexcept>
 
 #ifndef HAVE_POSIX_MEMALIGN
+#ifndef LACK_POSIX_MEMALIGN
 #ifndef _WIN32
 #ifndef __APPLE__
-#ifndef LACK_POSIX_MEMALIGN
 #define HAVE_POSIX_MEMALIGN
 #endif
 #endif
 #endif
 #endif
 
+#ifndef MALLOC_IS_ALIGNED
 #ifndef MALLOC_IS_NOT_ALIGNED
 #ifdef __APPLE_
-#ifndef MALLOC_IS_ALIGNED
 #define MALLOC_IS_ALIGNED
+#endif
+#endif
+#endif
+
+#ifndef USE_OWN_ALIGNED_MALLOC
+#ifndef AVOID_OWN_ALIGNED_MALLOC
+#ifdef _WIN32
+#ifndef __MSVC__
+#define USE_OWN_ALIGNED_MALLOC
+#endif
 #endif
 #endif
 #endif
 
 #ifdef HAVE_POSIX_MEMALIGN
 #include <sys/mman.h>
+#include <errno.h>
 #endif
 
 #ifdef LACK_BAD_ALLOC
@@ -80,9 +91,41 @@ template <typename T>
 T *allocate(size_t count)
 {
     void *ptr = 0;
-    // 32-byte alignment is required for at least OpenMAX
+
+#ifdef HAVE_IPP
+    // "Aligned memory allocation (alignment depends on
+    // CPU-architecture, 64-byte (cache line size) in most cases)"
+    ptr = ippsMalloc_8u(count * sizeof(T));
+#else /* !HAVE_IPP */
+
+#ifdef MALLOC_IS_ALIGNED
+    ptr = malloc(count * sizeof(T));
+#else /* !MALLOC_IS_ALIGNED */
+
+    // That's the "sufficiently aligned" functions dealt with, the
+    // rest need a specific alignment provided to the call. 32-byte
+    // alignment is required for at least OpenMAX
     static const int alignment = 32;
 
+#ifdef __MSVC__
+    ptr = _aligned_malloc(count * sizeof(T), alignment);
+#else /* !__MSVC__ */
+
+#ifdef HAVE_POSIX_MEMALIGN
+    int rv = posix_memalign(&ptr, alignment, count * sizeof(T));
+    if (rv) {
+#ifndef NO_EXCEPTIONS
+        if (rv == EINVAL) {
+            throw std::logic_error("Internal error: invalid alignment");
+         } else {
+            throw std::bad_alloc();
+        }
+#else
+        abort();
+#endif
+    }
+#else /* !HAVE_POSIX_MEMALIGN */
+    
 #ifdef USE_OWN_ALIGNED_MALLOC
     // Alignment must be a power of two, bigger than the pointer
     // size. Stuff the actual malloc'd pointer in just before the
@@ -99,27 +142,13 @@ T *allocate(size_t count)
 
 #else /* !USE_OWN_ALIGNED_MALLOC */
 
-#ifdef HAVE_POSIX_MEMALIGN
-    if (posix_memalign(&ptr, alignment, count * sizeof(T))) {
-        ptr = malloc(count * sizeof(T));
-    }
-#else /* !HAVE_POSIX_MEMALIGN */
+#error "No aligned malloc available: define MALLOC_IS_ALIGNED to use system malloc, HAVE_POSIX_MEMALIGN if posix_memalign is available, or USE_OWN_ALIGNED_MALLOC to roll our own"
 
-#ifdef __MSVC__
-    ptr = _aligned_malloc(count * sizeof(T), alignment);
-#else /* !__MSVC__ */
-
-#ifndef MALLOC_IS_ALIGNED
-#error "No aligned malloc available: define MALLOC_IS_ALIGNED to stick with system malloc, HAVE_POSIX_MEMALIGN if posix_memalign is available, or USE_OWN_ALIGNED_MALLOC to roll our own"
-#endif
-
-    // Note that malloc always aligns to 16 byte boundaries on OS/X
-    ptr = malloc(count * sizeof(T));
-    (void)alignment; // avoid compiler warning for unused 
-
-#endif /* !__MSVC__ */
-#endif /* !HAVE_POSIX_MEMALIGN */
 #endif /* !USE_OWN_ALIGNED_MALLOC */
+#endif /* !HAVE_POSIX_MEMALIGN */
+#endif /* !__MSVC__ */
+#endif /* !MALLOC_IS_ALIGNED */
+#endif /* !HAVE_IPP */
 
     if (!ptr) {
 #ifndef NO_EXCEPTIONS
@@ -155,21 +184,35 @@ T *allocate_and_zero(size_t count)
 template <typename T>
 void deallocate(T *ptr)
 {
+    if (!ptr) return;
+    
+#ifdef HAVE_IPP
+    ippsFree((void *)ptr);
+#else /* !HAVE_IPP */
 
-#ifdef USE_OWN_ALIGNED_MALLOC
-    if (ptr) free(((void **)ptr)[-1]);
-#else /* !USE_OWN_ALIGNED_MALLOC */
+#ifdef MALLOC_IS_ALIGNED
+    free((void *)ptr);
+#else /* !MALLOC_IS_ALIGNED */
 
 #ifdef __MSVC__
-    if (ptr) _aligned_free((void *)ptr);
+    _aligned_free((void *)ptr);
 #else /* !__MSVC__ */
 
-    // Acceptable for both malloc and posix_memalign
-    if (ptr) free((void *)ptr);
+#ifdef HAVE_POSIX_MEMALIGN
+    free((void *)ptr);
+#else /* !HAVE_POSIX_MEMALIGN */
+    
+#ifdef USE_OWN_ALIGNED_MALLOC
+    free(((void **)ptr)[-1]);
+#else /* !USE_OWN_ALIGNED_MALLOC */
 
-#endif /* !__MSVC__ */
+#error "No aligned malloc available: define MALLOC_IS_ALIGNED to use system malloc, HAVE_POSIX_MEMALIGN if posix_memalign is available, or USE_OWN_ALIGNED_MALLOC to roll our own"
+
 #endif /* !USE_OWN_ALIGNED_MALLOC */
-
+#endif /* !HAVE_POSIX_MEMALIGN */
+#endif /* !__MSVC__ */
+#endif /* !MALLOC_IS_ALIGNED */
+#endif /* !HAVE_IPP */
 }
 
 #ifdef HAVE_IPP
