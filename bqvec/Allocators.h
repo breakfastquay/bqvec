@@ -92,11 +92,12 @@ T *allocate(size_t count)
 {
     void *ptr = 0;
 
-#ifdef HAVE_IPP
-    // "Aligned memory allocation (alignment depends on
-    // CPU-architecture, 64-byte (cache line size) in most cases)"
-    ptr = ippsMalloc_8u(count * sizeof(T));
-#else /* !HAVE_IPP */
+    // We'd like to check HAVE_IPP first and, if it's defined, call
+    // ippsMalloc_8u(count * sizeof(T)). But that isn't a general
+    // replacement for malloc() because it only takes an int
+    // argument. So we save it for the specialisations of
+    // allocate<float> and allocate<double> below, where we're more
+    // likely to get away with it.
 
 #ifdef MALLOC_IS_ALIGNED
     ptr = malloc(count * sizeof(T));
@@ -148,7 +149,6 @@ T *allocate(size_t count)
 #endif /* !HAVE_POSIX_MEMALIGN */
 #endif /* !__MSVC__ */
 #endif /* !MALLOC_IS_ALIGNED */
-#endif /* !HAVE_IPP */
 
     if (!ptr) {
 #ifndef NO_EXCEPTIONS
@@ -186,10 +186,6 @@ void deallocate(T *ptr)
 {
     if (!ptr) return;
     
-#ifdef HAVE_IPP
-    ippsFree((void *)ptr);
-#else /* !HAVE_IPP */
-
 #ifdef MALLOC_IS_ALIGNED
     free((void *)ptr);
 #else /* !MALLOC_IS_ALIGNED */
@@ -212,7 +208,6 @@ void deallocate(T *ptr)
 #endif /* !HAVE_POSIX_MEMALIGN */
 #endif /* !__MSVC__ */
 #endif /* !MALLOC_IS_ALIGNED */
-#endif /* !HAVE_IPP */
 }
 
 #ifdef HAVE_IPP
