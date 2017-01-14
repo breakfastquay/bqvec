@@ -58,7 +58,7 @@
 
 #ifndef MALLOC_IS_ALIGNED
 #ifndef MALLOC_IS_NOT_ALIGNED
-#ifdef __APPLE_
+#ifdef __APPLE__
 #define MALLOC_IS_ALIGNED
 #endif
 #endif
