@@ -9,10 +9,6 @@ addons:
     packages:
       - libboost-test-dev
 
-before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install boost; fi
-
 script:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then make -f Makefile.osx test; else make test; fi
+  - make -f Makefile.$TRAVIS_OS_NAME test
 
