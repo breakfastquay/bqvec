@@ -15,7 +15,7 @@ TIMINGS_OBJECTS	:= $(TIMINGS_SOURCES:.cpp=.o)
 TEST_SOURCES	:= $(wildcard $(TEST_DIR)/*.cpp)
 TEST_OBJECTS	:= $(TEST_SOURCES:.cpp=.o)
 
-CXXFLAGS := $(VECTOR_DEFINES) $(ALLOCATOR_DEFINES) -I. $(THIRD_PARTY_INCLUDES) -I$(HEADER_DIR) -O3 -ffast-math -Wall -Werror -fpic -std=c++98
+CXXFLAGS := $(VECTOR_DEFINES) $(ALLOCATOR_DEFINES) -I. $(THIRD_PARTY_INCLUDES) -I$(HEADER_DIR) -O3 -ffast-math -Wall -Werror -fpic
 
 LIBRARY	:= libbqvec.a
 

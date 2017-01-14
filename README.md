@@ -5,9 +5,12 @@ bqvec
 A small library for efficient vector arithmetic and allocation in C++
 using raw C pointer arrays.
 
-C++ standard required: C++98 (does not use C++11)
+C++ standard required: C++98 (does not use C++11 or newer features)
 
-Copyright 2007-2016 Particular Programs Ltd.
+To compile on Linux: make && make test
+To compile on macOS: make -f Makefile.osx && make -f Makefile.osx test
+
+Copyright 2007-2017 Particular Programs Ltd.
 
 This code originated as part of the Rubber Band Library written by the
 same authors (see https://bitbucket.org/breakfastquay/rubberband/).
