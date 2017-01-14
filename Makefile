@@ -13,10 +13,17 @@
 # The following two options trade off speed against precision for single-
 # precision paths in cases where IPP and VDSP are not available:
 #
-#  -DUSE_POMMIER_MATHFUN    Use Julien Pommier's SSE/NEON implementation
-#                of sincos in 32-bit polar-to-cartesian conversion
-#  -DUSE_APPROXIMATE_ATAN2  Use a quick atan2 approximation in 32-bit
-#                cartesian-to-polar conversion
+#  -DUSE_POMMIER_MATHFUN Use Julien Pommier's SSE/NEON implementation
+#   of sincos in 32-bit polar-to-cartesian conversion
+#  -DUSE_APPROXIMATE_ATAN2 Use a quick but *very* approximate atan2
+#   function in 32-bit cartesian-to-polar conversion
+#
+# And a handful of miscellaneous flags:
+#
+#  -DLACK_SINCOS  Math library lacks sincos() function
+#  -DNO_COMPLEX_TYPES  Don't bother defining bq_complex_t functions
+#  -DUSE_SINGLE_PRECISION_COMPLEX  Use float, not double, for bq_complex_t
+#  -DNO_EXCEPTIONS  Don't throw exceptions (abort instead)
 #
 # Add any relevant -I flags for include paths as well.
 #
@@ -25,12 +32,12 @@
 # may find it simplest to just add the bqvec source files to your
 # application's build system and not build a bqvec library at all.)
 
-VECTOR_DEFINES	:= # -DHAVE_IPP
+VECTOR_DEFINES		:=
 
 # Add any related includes and libraries here
 #
-THIRD_PARTY_INCLUDES	:= # -I/opt/intel/ipp/include
-THIRD_PARTY_LIBS	:= # -L/opt/intel/ipp/lib/intel64_lin -Wl,-Bstatic -lipps -lippvm -lippcore -Wl,-Bdynamic
+THIRD_PARTY_INCLUDES	:=
+THIRD_PARTY_LIBS	:=
 
 
 # Add to ALLOCATOR_DEFINES options relating to aligned malloc.
@@ -64,6 +71,6 @@ THIRD_PARTY_LIBS	:= # -L/opt/intel/ipp/lib/intel64_lin -Wl,-Bstatic -lipps -lipp
 # may find it simplest to just add the bqvec source files to your
 # application's build system and not build a bqvec library at all.)
 
-ALLOCATOR_DEFINES := 
+ALLOCATOR_DEFINES 	:= 
 
-include Makefile.inc
+include build/Makefile.inc

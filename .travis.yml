@@ -8,7 +8,9 @@ addons:
   apt:
     packages:
       - libboost-test-dev
+      - valgrind
 
 script:
-  - make -f Makefile.$TRAVIS_OS_NAME test
+  - ./build/run-platform-tests.sh "$TRAVIS_OS_NAME"
+
 

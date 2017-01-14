@@ -18,15 +18,30 @@ using namespace std;
 
 BOOST_AUTO_TEST_SUITE(TestVectorOpsComplex)
 
-#define COMPARE_N(a, b, n)                    \
+#ifdef USE_APPROXIMATE_ATAN2
+static const double eps = 5.0e-3;
+#else
+#ifdef USE_SINGLE_PRECISION_COMPLEX
+static const double eps = 1.0e-7;
+#else
+static const double eps = 1.0e-14;
+#endif
+#endif
+    
+#define COMPARE_N(a, b, n) \
     for (int cmp_i = 0; cmp_i < n; ++cmp_i) { \
-        BOOST_CHECK_SMALL(a[cmp_i] - b[cmp_i], 1e-14);			\
+        BOOST_CHECK_SMALL(a[cmp_i] - b[cmp_i], eps); \
+    }
+
+#define COMPARE_NC(a, b, n) \
+    for (int cmp_i = 0; cmp_i < n; ++cmp_i) { \
+        BOOST_CHECK_SMALL(a[cmp_i] - b[cmp_i], (bq_complex_element_t) eps); \
     }
 
 #define COMPARE_CPLX_N(a, b, n)						\
     for (int cmp_i = 0; cmp_i < n; ++cmp_i) { \
-        BOOST_CHECK_SMALL(a[cmp_i].re - b[cmp_i].re, 1e-14);		\
-        BOOST_CHECK_SMALL(a[cmp_i].im - b[cmp_i].im, 1e-14);		\
+        BOOST_CHECK_SMALL(a[cmp_i].re - b[cmp_i].re, (bq_complex_element_t) eps); \
+        BOOST_CHECK_SMALL(a[cmp_i].im - b[cmp_i].im, (bq_complex_element_t) eps); \
     }
 
 BOOST_AUTO_TEST_CASE(add)
@@ -43,7 +58,7 @@ BOOST_AUTO_TEST_CASE(add_with_gain)
     bq_complex_t a[] = { { 1.0, 2.0 }, { 3.0, -4.0 } };
     bq_complex_t b[] = { { -1.0, 3.0 }, { -4.5, 0.0 } };
     bq_complex_t expected[] = { { -0.5, 6.5 }, { -3.75, -4.0 } };
-    v_add_with_gain(a, b, 1.5, 2);
+    v_add_with_gain(a, b, (bq_complex_element_t) 1.5, 2);
     COMPARE_CPLX_N(a, expected, 2);
 }
 
@@ -72,7 +87,7 @@ BOOST_AUTO_TEST_CASE(cartesian_to_magnitudes_bq)
     bq_complex_element_t o[2];
     bq_complex_element_t expected[] = { sqrt(5.0), 5.0 };
     v_cartesian_to_magnitudes(o, a, 2);
-    COMPARE_N(o, expected, 2);
+    COMPARE_NC(o, expected, 2);
 }
 
 BOOST_AUTO_TEST_CASE(cartesian_to_magnitudes)
@@ -101,8 +116,8 @@ BOOST_AUTO_TEST_CASE(cartesian_to_polar_bq)
     bq_complex_element_t me[] = { 0.0, sqrt(2.0), 1.0 };
     bq_complex_element_t pe[] = { 0.0, M_PI / 4.0, -M_PI * 0.5 };
     v_cartesian_to_polar(mo, po, a, 3);
-    COMPARE_N(mo, me, 3);
-    COMPARE_N(po, pe, 3);
+    COMPARE_NC(mo, me, 3);
+    COMPARE_NC(po, pe, 3);
 }
 
 BOOST_AUTO_TEST_CASE(cartesian_to_polar_interleaved_bq)
@@ -111,7 +126,7 @@ BOOST_AUTO_TEST_CASE(cartesian_to_polar_interleaved_bq)
     bq_complex_element_t o[6];
     bq_complex_element_t e[] = { 0.0, 0.0, sqrt(2.0), M_PI / 4.0, 1.0, -M_PI * 0.5 };
     v_cartesian_to_polar_interleaved(o, a, 3);
-    COMPARE_N(o, e, 6);
+    COMPARE_NC(o, e, 6);
 }
 
 BOOST_AUTO_TEST_CASE(cartesian_to_polar)
@@ -161,7 +176,7 @@ BOOST_AUTO_TEST_CASE(polar_to_cartesian_interleaved_bq)
     bq_complex_element_t o[6];
     bq_complex_element_t e[] = { 0.0, 0.0, sqrt(2.0), M_PI / 4.0, 1.0, -M_PI * 0.5 };
     v_cartesian_to_polar_interleaved(o, a, 3);
-    COMPARE_N(o, e, 6);
+    COMPARE_NC(o, e, 6);
 }
 
 BOOST_AUTO_TEST_CASE(polar_to_cartesian)

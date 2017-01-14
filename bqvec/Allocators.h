@@ -79,10 +79,12 @@
 #include <errno.h>
 #endif
 
+#ifndef NO_EXCEPTIONS
 #ifdef LACK_BAD_ALLOC
 namespace std {
     struct bad_alloc { };
 }
+#endif
 #endif
 
 namespace breakfastquay {
