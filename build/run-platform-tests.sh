@@ -59,6 +59,10 @@ for mf in Makefile build/Makefile.$platformtag build/Makefile.$platformtag.* ; d
 	    fi;;
     esac
 
+    if [ ! -f "$mf" ]; then
+	continue
+    fi
+    
     echo
     echo "Building and testing with $mf:"
     echo
