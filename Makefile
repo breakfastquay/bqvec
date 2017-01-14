@@ -34,6 +34,7 @@
 
 VECTOR_DEFINES		:=
 
+
 # Add any related includes and libraries here
 #
 THIRD_PARTY_INCLUDES	:=

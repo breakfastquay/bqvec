@@ -312,7 +312,7 @@ testCartToPolar()
     return true;
 }
 
-int main(int argc, char **argv)
+int main(int, char **)
 {
     if (!testMultiply()) return 1;
     if (!testPolarToCart()) return 1;

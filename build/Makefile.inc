@@ -15,7 +15,9 @@ TIMINGS_OBJECTS	:= $(TIMINGS_SOURCES:.cpp=.o)
 TEST_SOURCES	:= $(wildcard $(TEST_DIR)/*.cpp)
 TEST_OBJECTS	:= $(TEST_SOURCES:.cpp=.o)
 
-CXXFLAGS := $(VECTOR_DEFINES) $(ALLOCATOR_DEFINES) -I. $(THIRD_PARTY_INCLUDES) -I$(HEADER_DIR) -O3 -ffast-math -Wall -Werror -fpic -std=c++98
+OPTFLAGS := -O3 -ffast-math
+
+CXXFLAGS := -std=c++98 -fpic -Wall -Wextra -Werror $(VECTOR_DEFINES) $(ALLOCATOR_DEFINES) -I. $(THIRD_PARTY_INCLUDES) -I$(HEADER_DIR) $(OPTFLAGS)
 
 LIBRARY	:= libbqvec.a
 
@@ -49,7 +51,7 @@ distclean:	clean
 	rm -f $(LIBRARY) test-allocators test-vectorops test-vectorops-complex
 
 depend:
-	makedepend -Y -fMakefile.inc $(TIMINGS_SOURCES) $(TEST_SOURCES) $(HEADERS) $(SOURCES)
+	makedepend -Y -fbuild/Makefile.inc $(TIMINGS_SOURCES) $(TEST_SOURCES) $(HEADERS) $(SOURCES)
 
 
 # DO NOT DELETE
