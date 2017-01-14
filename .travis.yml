@@ -1,4 +1,4 @@
 language: cpp
-install: true
+install: apt-get install libboost-test-dev
 script: make test
 
