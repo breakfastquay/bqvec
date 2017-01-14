@@ -18,7 +18,17 @@ else
     echo "No IPP directory $ippdir, not testing with IPP"
 fi
 
-tmpfile=$(mktemp -p "" "test_XXXXXX")
+if valgrind --version >/dev/null ;
+then
+    have_valgrind=yes
+else
+    echo
+    echo "No valgrind executable found, not using valgrind"
+    have_valgrind=no
+fi
+
+tmpfile=$(mktemp "/tmp/test_XXXXXX")
+trap "rm -f $tmpfile" 0
 
 run() {
     successtext="$1"
@@ -56,11 +66,13 @@ for mf in Makefile build/Makefile.$platformtag build/Makefile.$platformtag.* ; d
     make -f "$mf" clean >/dev/null
     run "No errors detected" make -f "$mf" test
 
-    for t in test-* ; do
-	if [ -x "$t" ]; then
-	    run "no leaks are possible" valgrind --leak-check=full ./"$t"
-	fi
-    done
+    if [ "$have_valgrind" = "yes" ]; then
+	for t in test-* ; do
+	    if [ -x "$t" ]; then
+		run "no leaks are possible" valgrind --leak-check=full ./"$t"
+	    fi
+	done
+    fi
 done
 
 
