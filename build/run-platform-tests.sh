@@ -18,7 +18,7 @@ else
     echo "No IPP directory $ippdir, not testing with IPP"
 fi
 
-if valgrind --version >/dev/null ;
+if valgrind --version >/dev/null 2>&1 ;
 then
     have_valgrind=yes
 else
