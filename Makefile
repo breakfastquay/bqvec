@@ -35,12 +35,6 @@
 VECTOR_DEFINES		:=
 
 
-# Add any related includes and libraries here
-#
-THIRD_PARTY_INCLUDES	:=
-THIRD_PARTY_LIBS	:=
-
-
 # Add to ALLOCATOR_DEFINES options relating to aligned malloc.
 # These are not usually necessary.
 #
@@ -73,5 +67,12 @@ THIRD_PARTY_LIBS	:=
 # application's build system and not build a bqvec library at all.)
 
 ALLOCATOR_DEFINES 	:= 
+
+
+# Add any related includes and libraries here
+#
+THIRD_PARTY_INCLUDES	:=
+THIRD_PARTY_LIBS	:=
+
 
 include build/Makefile.inc
