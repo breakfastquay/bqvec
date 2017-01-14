@@ -3,10 +3,11 @@ bqvec
 =====
 
 A small library for vector management and arithmetic in C++ using raw
-C pointer arrays, designed for simple audio buffer-shuffling. Uses
-vector arithmetic helpers in places, plus loops written with an eye to
-compiler auto-vectorisation. Also includes aligned malloc wrappers and
-a lock-free ring buffer.
+C pointer arrays, designed for simple audio buffer-shuffling.
+Optionally calls out to vector arithmetic helpers in a couple of
+places, plus loops written with an eye to compiler
+auto-vectorisation. Also includes aligned malloc wrappers and a
+lock-free ring buffer.
 
 This code originated as part of the Rubber Band Library written by the
 same authors (see https://bitbucket.org/breakfastquay/rubberband/).
@@ -23,6 +24,6 @@ C++ standard required: C++98 (does not use C++11 or newer features)
 
 [![Build Status](https://travis-ci.org/breakfastquay/bqvec.svg?branch=master)](https://travis-ci.org/breakfastquay/bqvec)
 
-Copyright 2007-2017 Particular Programs Ltd, see COPYING for
+Copyright 2007-2017 Particular Programs Ltd. See the file COPYING for
 (BSD/MIT-style) licence terms.
 
