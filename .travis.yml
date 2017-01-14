@@ -1,4 +1,5 @@
 language: cpp
-install: sudo apt-get install libboost-test-dev
+before_install:
+ - sudo apt-get install -y libboost-test-dev
 script: make test
 
