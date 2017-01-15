@@ -3,11 +3,14 @@ bqvec
 =====
 
 A small library for vector management and arithmetic in C++ using raw
-C pointer arrays, designed for simple audio buffer-shuffling.
-Optionally calls out to vector arithmetic helpers in a couple of
-places, plus loops written with an eye to compiler
-auto-vectorisation. Also includes aligned malloc wrappers and a
-lock-free ring buffer.
+C pointer arrays, designed for simple audio buffer-shuffling. Also
+includes aligned malloc wrappers and a lock-free ring buffer.
+
+The code can call out to vector arithmetic helpers (IPP, vDSP) in some
+places, and has loops written with an eye to auto-vectorising
+compilers, but mostly this is a convenience library rather than for
+performance -- it initially exists to give a fairly consistent API to
+useful functions over audio buffer arrays.
 
 This code originated as part of the Rubber Band Library written by the
 same authors (see https://bitbucket.org/breakfastquay/rubberband/).
