@@ -35,7 +35,7 @@ run() {
     shift
     echo -n "Running \"$@\"..."
     if "$@" > "$tmpfile" 2>&1 ; then
-	if fgrep -q "$successtext" "$tmpfile" ; then
+	if [ -z "$successtext" ] || fgrep -q "$successtext" "$tmpfile" ; then
 	    echo " OK"
 	    return 0
 	else
