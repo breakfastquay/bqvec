@@ -40,8 +40,12 @@
 #define BQ_R__ __restrict
 #endif
 
+#ifdef __clang__
+#define BQ_R__ __restrict__
+#else
 #ifdef __GNUC__
 #define BQ_R__ __restrict__
+#endif
 #endif
 
 #ifndef BQ_R__
