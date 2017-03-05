@@ -67,7 +67,7 @@
 #ifndef USE_OWN_ALIGNED_MALLOC
 #ifndef AVOID_OWN_ALIGNED_MALLOC
 #ifdef _WIN32
-#ifndef __MSVC__
+#ifndef _MSC_VER
 #define USE_OWN_ALIGNED_MALLOC
 #endif
 #endif
@@ -110,9 +110,9 @@ T *allocate(size_t count)
     // alignment is required for at least OpenMAX
     static const int alignment = 32;
 
-#ifdef __MSVC__
+#ifdef _MSC_VER
     ptr = _aligned_malloc(count * sizeof(T), alignment);
-#else /* !__MSVC__ */
+#else /* !_MSC_VER */
 
 #ifdef HAVE_POSIX_MEMALIGN
     int rv = posix_memalign(&ptr, alignment, count * sizeof(T));
@@ -149,7 +149,7 @@ T *allocate(size_t count)
 
 #endif /* !USE_OWN_ALIGNED_MALLOC */
 #endif /* !HAVE_POSIX_MEMALIGN */
-#endif /* !__MSVC__ */
+#endif /* !_MSC_VER */
 #endif /* !MALLOC_IS_ALIGNED */
 
     if (!ptr) {
@@ -192,9 +192,9 @@ void deallocate(T *ptr)
     free((void *)ptr);
 #else /* !MALLOC_IS_ALIGNED */
 
-#ifdef __MSVC__
+#ifdef _MSC_VER
     _aligned_free((void *)ptr);
-#else /* !__MSVC__ */
+#else /* !_MSC_VER */
 
 #ifdef HAVE_POSIX_MEMALIGN
     free((void *)ptr);
@@ -208,7 +208,7 @@ void deallocate(T *ptr)
 
 #endif /* !USE_OWN_ALIGNED_MALLOC */
 #endif /* !HAVE_POSIX_MEMALIGN */
-#endif /* !__MSVC__ */
+#endif /* !_MSC_VER */
 #endif /* !MALLOC_IS_ALIGNED */
 }
 
