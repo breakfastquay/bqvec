@@ -64,11 +64,21 @@
 #endif
 #endif
 
+#ifndef HAVE__ALIGNED_MALLOC
+#ifndef LACK__ALIGNED_MALLOC
+#ifdef _WIN32
+#define HAVE__ALIGNED_MALLOC
+#endif
+#endif
+#endif
+
 #ifndef USE_OWN_ALIGNED_MALLOC
 #ifndef AVOID_OWN_ALIGNED_MALLOC
-#ifdef _WIN32
-#ifndef _MSC_VER
+#ifndef HAVE_POSIX_MEMALIGN
+#ifndef MALLOC_IS_ALIGNED
+#ifndef HAVE__ALIGNED_MALLOC
 #define USE_OWN_ALIGNED_MALLOC
+#endif
 #endif
 #endif
 #endif
@@ -110,9 +120,9 @@ T *allocate(size_t count)
     // alignment is required for at least OpenMAX
     static const int alignment = 32;
 
-#ifdef _MSC_VER
+#ifdef HAVE__ALIGNED_MALLOC
     ptr = _aligned_malloc(count * sizeof(T), alignment);
-#else /* !_MSC_VER */
+#else /* !HAVE__ALIGNED_MALLOC */
 
 #ifdef HAVE_POSIX_MEMALIGN
     int rv = posix_memalign(&ptr, alignment, count * sizeof(T));
@@ -130,6 +140,8 @@ T *allocate(size_t count)
 #else /* !HAVE_POSIX_MEMALIGN */
     
 #ifdef USE_OWN_ALIGNED_MALLOC
+#pragma message("Rolling own aligned malloc: this is unlikely to perform as well as the alternatives")
+
     // Alignment must be a power of two, bigger than the pointer
     // size. Stuff the actual malloc'd pointer in just before the
     // returned value.  This is the least desirable way to do this --
@@ -145,11 +157,11 @@ T *allocate(size_t count)
 
 #else /* !USE_OWN_ALIGNED_MALLOC */
 
-#error "No aligned malloc available: define MALLOC_IS_ALIGNED to use system malloc, HAVE_POSIX_MEMALIGN if posix_memalign is available, or USE_OWN_ALIGNED_MALLOC to roll our own"
+#error "No aligned malloc available: define MALLOC_IS_ALIGNED to use system malloc, HAVE_POSIX_MEMALIGN if posix_memalign is available, HAVE__ALIGNED_MALLOC if _aligned_malloc is available, or USE_OWN_ALIGNED_MALLOC to roll our own"
 
 #endif /* !USE_OWN_ALIGNED_MALLOC */
 #endif /* !HAVE_POSIX_MEMALIGN */
-#endif /* !_MSC_VER */
+#endif /* !HAVE__ALIGNED_MALLOC */
 #endif /* !MALLOC_IS_ALIGNED */
 
     if (!ptr) {
@@ -192,9 +204,9 @@ void deallocate(T *ptr)
     free((void *)ptr);
 #else /* !MALLOC_IS_ALIGNED */
 
-#ifdef _MSC_VER
+#ifdef HAVE__ALIGNED_MALLOC
     _aligned_free((void *)ptr);
-#else /* !_MSC_VER */
+#else /* !HAVE__ALIGNED_MALLOC */
 
 #ifdef HAVE_POSIX_MEMALIGN
     free((void *)ptr);
@@ -208,7 +220,7 @@ void deallocate(T *ptr)
 
 #endif /* !USE_OWN_ALIGNED_MALLOC */
 #endif /* !HAVE_POSIX_MEMALIGN */
-#endif /* !_MSC_VER */
+#endif /* !HAVE__ALIGNED_MALLOC */
 #endif /* !MALLOC_IS_ALIGNED */
 }
 
