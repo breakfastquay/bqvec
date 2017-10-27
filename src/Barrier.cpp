@@ -34,9 +34,10 @@
 */
 
 #include "Barrier.h"
+#include <atomic>
 
-#if defined __APPLE__
-#include <libkern/OSAtomic.h>
+#if defined __APPLE__ && defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && __MAC_OS_X_VERSION_MIN_REQUIRED < 101200
+    #include <libkern/OSAtomic.h>
 #endif
 #if defined _WIN32 && defined _MSC_VER
 #include <Windows.h>
@@ -46,10 +47,12 @@ namespace breakfastquay {
 
 void system_memorybarrier()
 {
-#if defined __APPLE__
-
-    OSMemoryBarrier();
-    
+#if defined __APPLE__ 
+#if defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && __MAC_OS_X_VERSION_MIN_REQUIRED < 101200
+   OSMemoryBarrier();
+#else
+    atomic_thread_fence(std::memory_order_seq_cst);
+#endif 
 #elif (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)
 
     __sync_synchronize();
