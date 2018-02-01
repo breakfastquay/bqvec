@@ -36,8 +36,12 @@
 #ifndef BQVEC_RESTRICT_H
 #define BQVEC_RESTRICT_H
 
+#ifdef _MSC_VER
+#define BQ_R__ __restrict
+#else
 #ifdef __MSVC__
 #define BQ_R__ __restrict
+#endif
 #endif
 
 #ifdef __clang__
