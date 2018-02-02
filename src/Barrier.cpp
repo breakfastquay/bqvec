@@ -6,7 +6,7 @@
     A small library for vector arithmetic and allocation in C++ using
     raw C pointer arrays.
 
-    Copyright 2007-2017 Particular Programs Ltd.
+    Copyright 2007-2018 Particular Programs Ltd.
 
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
@@ -36,7 +36,9 @@
 #include "Barrier.h"
 
 #if defined __APPLE__
+#if !defined __MAC_10_12
 #include <libkern/OSAtomic.h>
+#endif
 #endif
 #if defined _WIN32 && defined _MSC_VER
 #include <Windows.h>
@@ -48,7 +50,11 @@ void system_memorybarrier()
 {
 #if defined __APPLE__
 
+#if defined __MAC_10_12
+    __sync_synchronize();
+#else
     OSMemoryBarrier();
+#endif
     
 #elif (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)
 

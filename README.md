@@ -27,6 +27,6 @@ C++ standard required: C++98 (does not use C++11 or newer features)
 
 [![Build Status](https://travis-ci.org/breakfastquay/bqvec.svg?branch=master)](https://travis-ci.org/breakfastquay/bqvec)
 
-Copyright 2007-2017 Particular Programs Ltd. See the file COPYING for
+Copyright 2007-2018 Particular Programs Ltd. See the file COPYING for
 (BSD/MIT-style) licence terms.
 
