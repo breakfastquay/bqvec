@@ -152,6 +152,7 @@ T *allocate(size_t count)
         char *adj = (char *)buf;
         while ((unsigned long long)adj & (alignment-1)) --adj;
         ptr = ((char *)adj) + alignment;
+        new (((void **)ptr)[-1]) (void *);
         ((void **)ptr)[-1] = buf;
     }
 
@@ -172,7 +173,11 @@ T *allocate(size_t count)
 #endif
     }
 
-    return (T *)ptr;
+    T *typed_ptr = static_cast<T *>(ptr);
+    for (size_t i = 0; i < count; ++i) {
+        new (typed_ptr + i) T;
+    }
+    return typed_ptr;
 }
 
 #ifdef HAVE_IPP

@@ -68,6 +68,10 @@ float *allocate(size_t count)
         abort();
 #endif
     }
+
+    for (size_t i = 0; i < count; ++i) {
+        new (ptr + i) float;
+    }
     return ptr;
 }
 
@@ -89,6 +93,10 @@ double *allocate(size_t count)
 #else
         abort();
 #endif
+    }
+
+    for (size_t i = 0; i < count; ++i) {
+        new (ptr + i) double;
     }
     return ptr;
 }
