@@ -40,23 +40,6 @@ namespace breakfastquay {
     extern void system_memorybarrier();
 }
 
-#if defined _WIN32
-
 #define BQ_MBARRIER() ::breakfastquay::system_memorybarrier()
-
-#elif defined __APPLE__
-
-#include <libkern/OSAtomic.h>
-#define BQ_MBARRIER() OSMemoryBarrier()
-
-#elif (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)
-
-#define BQ_MBARRIER() __sync_synchronize()
-
-#else
-
-#define BQ_MBARRIER() ::breakfastquay::system_memorybarrier()
-
-#endif
 
 #endif
