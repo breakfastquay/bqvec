@@ -243,9 +243,6 @@ void deallocate(double *);
 template <typename T>
 T *reallocate(T *ptr, size_t oldcount, size_t count)
 {
-    if ((count < oldcount) && ptr) {
-        return ptr;
-    }
     T *newptr = allocate<T>(count);
     if (oldcount && ptr) {
         size_t tocopy = oldcount;
