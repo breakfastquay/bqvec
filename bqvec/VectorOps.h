@@ -1171,13 +1171,36 @@ inline void v_mix(T *const BQ_R__ out,
 /**
  * v_reconfigure_channels
  *
- * Convert a fixed number of frames from n to m channels. 
- * The rules are:
+ * Adapt a fixed number of frames from n to m channels.
+ * 
+ * We vaguely assume these channel ordering conventions (from
+ * Vorbis/Opus docs):
+ *
+ * 1 channel = mono
+ * 2 = stereo
+ * 3 = l/c/r
+ * 4 = fl/fr/rl/rr
+ * 5 = fl/c/fr/rl/rr
+ * 6 (= 5.1) = fl/c/fr/rl/rr/lfe
+ * 7 (= 6.1) = fl/c/fr/sl/sr/rc/lfe
+ * 8 (= 7.1) = fl/c/fr/sl/sr/rl/rr/lfe
+ * >8 = application-specific
+ *
+ * (where l = left, c = centre, r = right, fl/fr = front l/r; sl/sr =
+ * side l/r; rl/rr = rear l/r; lfe = low-frequency effects channel)
+ *
+ * The reconfiguration rules are:
  * -- if n == m, copy the input through unchanged
  * -- else if m == 1, mixdown to mono by averaging all n input channels
  * -- else if n == 1, duplicate the mono input across all m output channels
+ * -- else if m == 2 and n == 3 or n >= 5, take 1st and 3rd channels of input
+ * -- else if n == 2 and m == 3 or m >= 5, copy to 1st and 3rd, the rest silent
  * -- else if n > m, take the first m channels of the input
  * -- else take all n channels of the input and add m-n silent channels
+ * 
+ * The aim here is to be simple and not unreasonable, to reconfigure,
+ * not to properly convert - that would involve more
+ * application-specific decisions.
  */
 template<typename T>
 inline void v_reconfigure_channels(T *const BQ_R__ *const BQ_R__ out,
@@ -1193,6 +1216,16 @@ inline void v_reconfigure_channels(T *const BQ_R__ *const BQ_R__ out,
     } else if (n == 1) {
         for (int c = 0; c < m; ++c) {
             v_copy(out[c], in[0], count);
+        }
+    } else if (m == 2 && (n == 3 || n >= 5)) {
+        v_copy(out[0], in[0], count);
+        v_copy(out[1], in[2], count);
+    } else if (n == 2 && (m == 3 || m >= 5)) {
+        v_copy(out[0], in[0], count);
+        v_zero(out[1], count);
+        v_copy(out[2], in[1], count);
+        for (int c = 3; c < m; ++c) {
+            v_zero(out[c], count);
         }
     } else {
         int c = 0;
