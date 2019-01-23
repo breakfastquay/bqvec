@@ -335,8 +335,8 @@ BOOST_AUTO_TEST_CASE(reconfigure_2_3)
     double o1[3], o2[3], o3[3];
     double *oo[] = { o1, o2, o3 };
     double e1[] = { 1.0, 2.0, 3.0 };
-    double e2[] = { 4.0, 5.0, 6.0 };
-    double e3[] = { 0.0, 0.0, 0.0 };
+    double e2[] = { 0.0, 0.0, 0.0 };
+    double e3[] = { 4.0, 5.0, 6.0 };
     double *expected[] = { e1, e2, e3 };
     v_reconfigure_channels(oo, 3, aa, 2, 3);
     COMPARE_N(oo[0], expected[0], 3);
@@ -353,7 +353,7 @@ BOOST_AUTO_TEST_CASE(reconfigure_3_2)
     double o1[3], o2[3];
     double *oo[] = { o1, o2 };
     double e1[] = { 1.0, 2.0, 3.0 };
-    double e2[] = { 4.0, 5.0, 6.0 };
+    double e2[] = { 7.0, 8.0, 9.0 };
     double *expected[] = { e1, e2 };
     v_reconfigure_channels(oo, 2, aa, 3, 3);
     COMPARE_N(oo[0], expected[0], 3);
