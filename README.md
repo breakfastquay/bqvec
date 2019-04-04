@@ -22,8 +22,12 @@ than being installed as a system library.
 
 C++ standard required: C++98 (does not use C++11 or newer features)
 
- * To compile on Linux: make test
- * To compile on macOS: make -f build/Makefile.osx test
+ * To compile on Linux: make
+   
+ * To compile on macOS: make -f build/Makefile.osx
+
+ * To build and run tests: as above, but add the "test" target -
+   requires Boost test headers installed
 
 [![Build Status](https://travis-ci.org/breakfastquay/bqvec.svg?branch=master)](https://travis-ci.org/breakfastquay/bqvec)
 
