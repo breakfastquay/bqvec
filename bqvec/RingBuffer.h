@@ -438,7 +438,7 @@ RingBuffer<T>::skip(int n)
     r += n;
     while (r >= m_size) r -= m_size;
 
-    // No memory barrier required, because we didn't read any data
+    BQ_MBARRIER();
     m_reader = r;
 
     return n;
