@@ -2,8 +2,10 @@ language: cpp
 
 os:
   - linux
-      dist: bionic
   - osx
+
+dist:
+  - bionic
 
 addons:
   apt:
