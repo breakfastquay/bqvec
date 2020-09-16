@@ -320,7 +320,7 @@ T **reallocate_channels(T **ptr,
 {
     T **newptr = allocate_channels<T>(channels, count);
     if (oldcount && ptr) {
-        for (size_t c = 0; c < channels; ++c) {
+        for (size_t c = 0; c < oldchannels && c < channels; ++c) {
             for (size_t i = 0; i < oldcount && i < count; ++i) {
                 newptr[c][i] = ptr[c][i];
             }
@@ -337,7 +337,7 @@ T **reallocate_and_zero_extend_channels(T **ptr,
 {
     T **newptr = allocate_and_zero_channels<T>(channels, count);
     if (oldcount && ptr) {
-        for (size_t c = 0; c < channels; ++c) {
+        for (size_t c = 0; c < oldchannels && c < channels; ++c) {
             for (size_t i = 0; i < oldcount && i < count; ++i) {
                 newptr[c][i] = ptr[c][i];
             }
