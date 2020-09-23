@@ -548,6 +548,30 @@ inline void v_scale(double *const BQ_R__ srcdst,
 #endif // HAVE_IPP
 
 /**
+ * v_clamp
+ *
+ * Clamp the elements in the vector \arg srcdst, of length \arg count,
+ * into the range \arg min to \arg max inclusive.
+ */
+template<typename T, typename G>
+inline void v_clamp(T *const BQ_R__ srcdst,
+                    const G min,
+                    const G max,
+                    const int count)
+{
+    for (int i = 0; i < count; ++i) {
+        if (srcdst[i] < min) {
+            srcdst[i] = min;
+        }
+    }
+    for (int i = 0; i < count; ++i) {
+        if (srcdst[i] > max) {
+            srcdst[i] = max;
+        }
+    }
+}
+
+/**
  * v_increment
  *
  * Add a constant quantity \incr to all of the elements in the vector
