@@ -50,6 +50,7 @@
 
 #ifdef HAVE_VDSP
 #include <Accelerate/Accelerate.h>
+#include <alloca.h>
 #endif
 
 #include <cstring>
@@ -814,7 +815,7 @@ template<>
 inline void v_log(float *const BQ_R__ srcdst,
                   const int count)
 {
-    float tmp[count];
+    float *tmp = (float *)alloca(count * sizeof(float));
     vvlogf(tmp, srcdst, &count);
     v_copy(srcdst, tmp, count);
 }
@@ -822,7 +823,7 @@ template<>
 inline void v_log(double *const BQ_R__ srcdst,
                   const int count)
 {
-    double tmp[count];
+    double *tmp = (double *)alloca(count * sizeof(double));
     vvlog(tmp, srcdst, &count);
     v_copy(srcdst, tmp, count);
 }
@@ -865,7 +866,7 @@ template<>
 inline void v_exp(float *const BQ_R__ srcdst,
                   const int count)
 {
-    float tmp[count];
+    float *tmp = (float *)alloca(count * sizeof(float));
     vvexpf(tmp, srcdst, &count);
     v_copy(srcdst, tmp, count);
 }
@@ -873,7 +874,7 @@ template<>
 inline void v_exp(double *const BQ_R__ srcdst,
                   const int count)
 {
-    double tmp[count];
+    double *tmp = (double *)alloca(count * sizeof(double));
     vvexp(tmp, srcdst, &count);
     v_copy(srcdst, tmp, count);
 }
@@ -916,7 +917,7 @@ template<>
 inline void v_sqrt(float *const BQ_R__ srcdst,
                    const int count)
 {
-    float tmp[count];
+    float *tmp = (float *)alloca(count * sizeof(float));
     vvsqrtf(tmp, srcdst, &count);
     v_copy(srcdst, tmp, count);
 }
@@ -924,7 +925,7 @@ template<>
 inline void v_sqrt(double *const BQ_R__ srcdst,
                    const int count)
 {
-    double tmp[count];
+    double *tmp = (double *)alloca(count * sizeof(double));
     vvsqrt(tmp, srcdst, &count);
     v_copy(srcdst, tmp, count);
 }
@@ -993,7 +994,7 @@ template<>
 inline void v_abs(float *const BQ_R__ srcdst,
                   const int count)
 {
-    float tmp[count];
+    float *tmp = (float *)alloca(count * sizeof(float));
 #if (defined(MACOSX_DEPLOYMENT_TARGET) && MACOSX_DEPLOYMENT_TARGET <= 1070 && MAC_OS_X_VERSION_MIN_REQUIRED <= 1070)
     vvfabf(tmp, srcdst, &count);
 #else
