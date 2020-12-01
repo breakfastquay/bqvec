@@ -31,7 +31,7 @@ C++ standard required: C++98 (does not use C++11 or newer features)
 
  * See also: [bqfft](https://hg.sr.ht/~breakfastquay/bqfft) [bqresample](https://hg.sr.ht/~breakfastquay/bqresample) [bqaudioio](https://hg.sr.ht/~breakfastquay/bqaudioio) [bqthingfactory](https://hg.sr.ht/~breakfastquay/bqthingfactory) [bqaudiostream](https://hg.sr.ht/~breakfastquay/bqaudiostream)
 
-[![Build Status](https://travis-ci.org/breakfastquay/bqvec.svg?branch=master)](https://travis-ci.org/breakfastquay/bqvec)
+[![Build status](https://builds.sr.ht/~breakfastquay/bqvec.svg)](https://builds.sr.ht/~breakfastquay/bqvec?)
 
 Copyright 2007-2020 Particular Programs Ltd. See the file COPYING for
 (BSD/MIT-style) licence terms.

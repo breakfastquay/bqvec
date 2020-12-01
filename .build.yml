@@ -1,0 +1,14 @@
+image: ubuntu/18.04
+packages:
+  - libboost-test-dev
+  - valgrind
+sources:
+  - hg+https://hg.sr.ht/~breakfastquay/bqvec
+tasks:
+  - build: |
+      cd bqvec
+      build/run-platform-tests.sh linux
+triggers:
+  - action: email
+    condition: always
+    to: chris.cannam@breakfastquay.com
