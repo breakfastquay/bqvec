@@ -45,7 +45,7 @@
 #endif
 #endif
 
-#if defined(_MSC_VER) || defined(WIN32)
+#if defined(_MSC_VER) || defined(WIN32) || defined(__MINGW32__)
 #include <malloc.h>
 #ifndef alloca
 #define alloca _alloca
