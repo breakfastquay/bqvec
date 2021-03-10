@@ -597,9 +597,9 @@ inline void v_increment(T *const BQ_R__ srcdst,
  *
  * Caller guarantees that \arg src and \arg srcdst are non-overlapping.
  */
-template<typename T>
+template<typename T, typename S>
 inline void v_multiply(T *const BQ_R__ srcdst,
-                       const T *const BQ_R__ src,
+                       const S *const BQ_R__ src,
                        const int count)
 {
     for (int i = 0; i < count; ++i) {
@@ -634,10 +634,10 @@ inline void v_multiply(double *const BQ_R__ srcdst,
  * Caller guarantees that \arg src1, \arg src2 and \arg dst are
  * non-overlapping.
  */
-template<typename T>
+template<typename T, typename S>
 inline void v_multiply_to(T *const BQ_R__ dst,
                           const T *const BQ_R__ src1,
-                          const T *const BQ_R__ src2,
+                          const S *const BQ_R__ src2,
                           const int count)
 {
     for (int i = 0; i < count; ++i) {
