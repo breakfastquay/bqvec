@@ -597,9 +597,9 @@ inline void v_increment(T *const BQ_R__ srcdst,
  *
  * Caller guarantees that \arg src and \arg srcdst are non-overlapping.
  */
-template<typename T>
+template<typename T, typename S>
 inline void v_multiply(T *const BQ_R__ srcdst,
-                       const T *const BQ_R__ src,
+                       const S *const BQ_R__ src,
                        const int count)
 {
     for (int i = 0; i < count; ++i) {
@@ -634,10 +634,10 @@ inline void v_multiply(double *const BQ_R__ srcdst,
  * Caller guarantees that \arg src1, \arg src2 and \arg dst are
  * non-overlapping.
  */
-template<typename T>
+template<typename T, typename S>
 inline void v_multiply_to(T *const BQ_R__ dst,
                           const T *const BQ_R__ src1,
-                          const T *const BQ_R__ src2,
+                          const S *const BQ_R__ src2,
                           const int count)
 {
     for (int i = 0; i < count; ++i) {
@@ -760,9 +760,9 @@ inline T v_sum(const T *const BQ_R__ src,
 /**
  * v_multiply_and_sum
  *
- * Multiply the corresponding elements of the vectors \arg src1 and
- * \arg src2, both of length arg \count, sum the results, and return
- * the sum as a scalar value.
+ * Vector dot-product. Multiply the corresponding elements of the
+ * vectors \arg src1 and \arg src2, both of length arg \count, sum the
+ * results, and return the sum as a scalar value.
  *
  * Caller guarantees that \arg src1 and \arg src2 are non-overlapping.
  */
@@ -777,6 +777,46 @@ inline T v_multiply_and_sum(const T *const BQ_R__ src1,
     }
     return result;
 }
+
+#if defined HAVE_IPP
+template<>
+inline float v_multiply_and_sum(const float *const BQ_R__ src1,
+                                const float *const BQ_R__ src2,
+                                const int count)
+{
+    float dp;
+    ippsDotProd_32f(src1, src2, count, &dp);
+    return dp;
+}
+template<>
+inline double v_multiply_and_sum(const double *const BQ_R__ src1,
+                                 const double *const BQ_R__ src2,
+                                 const int count)
+{
+    double dp;
+    ippsDotProd_64f(src1, src2, count, &dp);
+    return dp;
+}
+#elif defined HAVE_VDSP
+template<>
+inline float v_multiply_and_sum(const float *const BQ_R__ src1,
+                                const float *const BQ_R__ src2,
+                                const int count)
+{
+    float dp;
+    vDSP_dotpr(src1, 1, src2, 1, &dp, count);
+    return dp;
+}
+template<>
+inline double v_multiply_and_sum(const double *const BQ_R__ src1,
+                                 const double *const BQ_R__ src2,
+                                 const int count)
+{
+    double dp;
+    vDSP_dotprD(src1, 1, src2, 1, &dp, count);
+    return dp;
+}
+#endif
 
 /**
  * v_log
