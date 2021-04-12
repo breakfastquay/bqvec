@@ -1170,6 +1170,60 @@ inline void v_fftshift(T *const BQ_R__ vec,
 }
 
 /**
+ * v_min
+ *
+ * Return the minimum of the values in the vector \arg vec, of length
+ * \arg count. For an empty vector, return 0.0.
+ */
+template<typename T>
+inline T v_min(const T *const BQ_R__ vec, const int count)
+{
+    if (count == 0) return T(0);
+    T min = vec[0];
+    for (int i = 1; i < count; ++i) {
+        T v = vec[i];
+        if (v < min) min = v;
+    }
+    return min;
+}
+
+/**
+ * v_max
+ *
+ * Return the maximum of the values in the vector \arg vec, of length
+ * \arg count. For an empty vector, return 0.0.
+ */
+template<typename T>
+inline T v_max(const T *const BQ_R__ vec, const int count)
+{
+    if (count == 0) return T(0);
+    T max = vec[0];
+    for (int i = 1; i < count; ++i) {
+        T v = vec[i];
+        if (v > max) max = v;
+    }
+    return max;
+}
+
+/**
+ * v_rms
+ *
+ * Return the RMS value of the values in the vector \arg vec, of
+ * length \arg count. For an empty vector, return 0.0.
+ */
+template<typename T>
+inline T v_rms(const T *const BQ_R__ vec, const int count)
+{
+    T t = T(0);
+    if (count == 0) return t;
+    for (int i = 0; i < count; ++i) {
+        t += vec[i] * vec[i];
+    }
+    t /= T(count);
+    return sqrt(t);
+}
+
+/**
  * v_mean
  *
  * Return the mean of the values in the vector \arg vec, of length
