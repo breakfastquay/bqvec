@@ -111,7 +111,7 @@ template<typename T>
 inline void v_zero(T *const BQ_R__ vec,
                    const int count)
 {
-    const T value = T(0);
+    const T value = T();
     for (int i = 0; i < count; ++i) {
         vec[i] = value;
     }
