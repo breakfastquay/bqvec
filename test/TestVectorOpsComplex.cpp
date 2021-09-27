@@ -81,6 +81,25 @@ BOOST_AUTO_TEST_CASE(multiply_to)
     COMPARE_CPLX_N(o, expected, 2);
 }
 
+BOOST_AUTO_TEST_CASE(divide)
+{
+    bq_complex_t a[] = { { 0.0, 0.0 }, { 1.0, 0.0 }, { 1.0, 0.0 }, { -1.0, 0.0 }, { 0.0, 1.0 }, { 2.0, -1000.5 } };
+    bq_complex_t b[] = { { 1.0, 0.0 }, { 1.0, 0.0 }, { 0.0, 1.0 }, { 1.0, 0.0 }, { 0.0, 1.0 }, { 0.4, 2.0 } };
+    bq_complex_t expected[] = { { 0.0, 0.0 }, { 1.0, 0.0 }, { 0.0, -1.0 }, { 0.0, 1.0 }, { 1.0, 0.0 }, { -480.817307692, -97.16346154 } };
+    v_divide(a, b, 2);
+    COMPARE_CPLX_N(a, expected, 2);
+}
+
+BOOST_AUTO_TEST_CASE(divide_to)
+{
+    bq_complex_t a[] = { { 0.0, 0.0 }, { 1.0, 0.0 }, { 1.0, 0.0 }, { -1.0, 0.0 }, { 0.0, 1.0 }, { 2.0, -1000.5 } };
+    bq_complex_t b[] = { { 1.0, 0.0 }, { 1.0, 0.0 }, { 0.0, 1.0 }, { 1.0, 0.0 }, { 0.0, 1.0 }, { 0.4, 2.0 } };
+    bq_complex_t o[6];
+    bq_complex_t expected[] = { { 0.0, 0.0 }, { 1.0, 0.0 }, { 0.0, -1.0 }, { 0.0, 1.0 }, { 1.0, 0.0 }, { -480.817307692, -97.16346154 } };
+    v_divide_to(o, a, b, 2);
+    COMPARE_CPLX_N(o, expected, 2);
+}
+
 BOOST_AUTO_TEST_CASE(cartesian_to_magnitudes_bq)
 {
     bq_complex_t a[] = { { 1.0, 2.0 }, { 3.0, -4.0 } };

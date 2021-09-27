@@ -625,7 +625,7 @@ inline void v_multiply(double *const BQ_R__ srcdst,
 #endif // HAVE_IPP
 
 /**
- * v_multiply
+ * v_multiply_to
  *
  * Multiply the corresponding elements of the vectors \arg src1 and
  * \arg src2, both of length arg \count, and write the results into
@@ -697,6 +697,46 @@ inline void v_divide(double *const BQ_R__ srcdst,
                      const int count)
 {
     ippsDiv_64f_I(src, srcdst, count);
+}
+#endif // HAVE_IPP
+
+/**
+ * v_divide_to
+ *
+ * Divide the corresponding elements of the vectors \arg src1 by those
+ * in \arg src2, both of length arg \count, and write the results into
+ * \arg dst.
+ *
+ * Caller guarantees that \arg src1, \arg src2 and \arg dst are
+ * non-overlapping.
+ */
+template<typename T, typename S>
+inline void v_divide_to(T *const BQ_R__ dst,
+                          const T *const BQ_R__ src1,
+                          const S *const BQ_R__ src2,
+                          const int count)
+{
+    for (int i = 0; i < count; ++i) {
+        dst[i] = src1[i] / src2[i];
+    }
+}
+
+#if defined HAVE_IPP 
+template<>
+inline void v_divide_to(float *const BQ_R__ dst,
+                          const float *const BQ_R__ src1,
+                          const float *const BQ_R__ src2,
+                          const int count)
+{
+    ippsDiv_32f(src1, src2, dst, count);
+}    
+template<>
+inline void v_divide_to(double *const BQ_R__ dst,
+                          const double *const BQ_R__ src1,
+                          const double *const BQ_R__ src2,
+                          const int count)
+{
+    ippsDiv_64f(src1, src2, dst, count);
 }
 #endif // HAVE_IPP
 

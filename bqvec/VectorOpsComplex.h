@@ -174,6 +174,28 @@ inline void c_multiply_and_add(bq_complex_t &srcdst,
     c_add(srcdst, tmp);
 }
 
+inline void c_divide(bq_complex_t &dst,
+                     const bq_complex_t &src1,
+                     const bq_complex_t &src2)
+{
+    bq_complex_element_t scale = bq_complex_element_t
+        (1.0 / (src2.re * src2.re + src2.im * src2.im));
+
+    bq_complex_element_t real =
+        scale * (src1.re * src2.re + src1.im * src2.im);
+    bq_complex_element_t imag =
+        scale * (src1.im * src2.re - src1.re * src2.im);
+
+    dst.re = real;
+    dst.im = imag;
+}
+
+inline void c_divide(bq_complex_t &srcdst,
+                     const bq_complex_t &src)
+{
+    c_divide(srcdst, srcdst, src);
+}
+
 template<>
 inline void v_add(bq_complex_t *const BQ_R__ srcdst,
                   const bq_complex_t *const BQ_R__ src,
@@ -245,6 +267,45 @@ inline void v_multiply_to(bq_complex_t *const BQ_R__ dst,
 }
 
 template<>
+inline void v_divide(bq_complex_t *const BQ_R__ srcdst,
+                     const bq_complex_t *const BQ_R__ src,
+                     const int count)
+{
+#ifdef HAVE_IPP
+    if (sizeof(bq_complex_element_t) == sizeof(float)) {
+        ippsDiv_32fc_I((const Ipp32fc *)src, (Ipp32fc *)srcdst, count);
+    } else {
+        ippsDiv_64fc_I((const Ipp64fc *)src, (Ipp64fc *)srcdst, count);
+    }
+#else
+    for (int i = 0; i < count; ++i) {
+        c_divide(srcdst[i], src[i]);
+    }
+#endif // HAVE_IPP
+}
+
+template<>
+inline void v_divide_to(bq_complex_t *const BQ_R__ dst,
+                        const bq_complex_t *const BQ_R__ src1,
+                        const bq_complex_t *const BQ_R__ src2,
+                        const int count)
+{
+#ifdef HAVE_IPP
+    if (sizeof(bq_complex_element_t) == sizeof(float)) {
+        ippsDiv_32fc((const Ipp32fc *)src1, (const Ipp32fc *)src2,
+                     (Ipp32fc *)dst, count);
+    } else {
+        ippsDiv_64fc((const Ipp64fc *)src1, (const Ipp64fc *)src2,
+                     (Ipp64fc *)dst, count);
+    }
+#else
+    for (int i = 0; i < count; ++i) {
+        c_divide(dst[i], src1[i], src2[i]);
+    }
+#endif // HAVE_IPP
+}
+
+template<>
 inline void v_multiply_and_add(bq_complex_t *const BQ_R__ srcdst,
                                const bq_complex_t *const BQ_R__ src1,
                                const bq_complex_t *const BQ_R__ src2,
@@ -265,27 +326,35 @@ inline void v_multiply_and_add(bq_complex_t *const BQ_R__ srcdst,
 #endif // HAVE_IPP
 }
 
-#if defined( __GNUC__ ) && defined( _WIN32 )
-// MinGW doesn't appear to have sincos, so define it -- it's
-// a single x87 instruction anyway
-static inline void sincos(double x, double *sin, double *cos) {
-    __asm__ ("fsincos;" : "=t" (*cos), "=u" (*sin) : "0" (x) : "st(7)");
-}
-static inline void sincosf(float fx, float *fsin, float *fcos) {
-    double sin, cos;
-    sincos(fx, &sin, &cos);
-    *fsin = sin;
-    *fcos = cos;
-}
+template<>
+inline bq_complex_t v_multiply_and_sum(const bq_complex_t *const BQ_R__ src1,
+                                       const bq_complex_t *const BQ_R__ src2,
+                                       const int count)
+{
+    bq_complex_t result = bq_complex_t();
+#ifdef HAVE_IPP
+    if (sizeof(bq_complex_element_t) == sizeof(float)) {
+        ippsDotProd_32fc((const Ipp32fc *)src1, (const Ipp32fc *)src2,
+                         count, (Ipp32fc *)&result);
+    } else {
+        ippsDotProd_64fc((const Ipp64fc *)src1, (const Ipp64fc *)src2,
+                         count, (Ipp64fc *)&result);
+    }
+#else
+    bq_complex_t out = bq_complex_t();
+    for (int i = 0; i < count; ++i) {
+        c_multiply(out, src1[i], src2[i]);
+        c_add(result, out);
+    }
 #endif
+    return result;
+}
 
 #endif // !NO_COMPLEX_TYPES
 
 template<typename T>
 inline void c_phasor(T *real, T *imag, T phase)
 {
-    //!!! IPP contains ippsSinCos_xxx in ippvm.h -- these are
-    //!!! fixed-accuracy, test and compare
 #if defined HAVE_VDSP
     int one = 1;
     if (sizeof(T) == sizeof(float)) {
