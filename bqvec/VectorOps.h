@@ -824,7 +824,7 @@ inline float v_multiply_and_sum(const float *const BQ_R__ src1,
                                 const float *const BQ_R__ src2,
                                 const int count)
 {
-    float dp;
+    float dp = 0.f;
     ippsDotProd_32f(src1, src2, count, &dp);
     return dp;
 }
@@ -833,7 +833,7 @@ inline double v_multiply_and_sum(const double *const BQ_R__ src1,
                                  const double *const BQ_R__ src2,
                                  const int count)
 {
-    double dp;
+    double dp = 0.0;
     ippsDotProd_64f(src1, src2, count, &dp);
     return dp;
 }
@@ -843,7 +843,7 @@ inline float v_multiply_and_sum(const float *const BQ_R__ src1,
                                 const float *const BQ_R__ src2,
                                 const int count)
 {
-    float dp;
+    float dp = 0.f;
     vDSP_dotpr(src1, 1, src2, 1, &dp, count);
     return dp;
 }
@@ -852,7 +852,7 @@ inline double v_multiply_and_sum(const double *const BQ_R__ src1,
                                  const double *const BQ_R__ src2,
                                  const int count)
 {
-    double dp;
+    double dp = 0.0;
     vDSP_dotprD(src1, 1, src2, 1, &dp, count);
     return dp;
 }
