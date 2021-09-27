@@ -44,6 +44,12 @@ static const double eps = 1.0e-14;
         BOOST_CHECK_SMALL(a[cmp_i].im - b[cmp_i].im, (bq_complex_element_t) eps); \
     }
 
+#define COMPARE_CPLX_N_APPROX(a, b, n)						\
+    for (int cmp_i = 0; cmp_i < n; ++cmp_i) { \
+        BOOST_CHECK_SMALL(a[cmp_i].re - b[cmp_i].re, (bq_complex_element_t) 1e-7); \
+        BOOST_CHECK_SMALL(a[cmp_i].im - b[cmp_i].im, (bq_complex_element_t) 1e-7); \
+    }
+
 BOOST_AUTO_TEST_CASE(add)
 {
     bq_complex_t a[] = { { 1.0, 2.0 }, { 3.0, -4.0 } };
@@ -81,23 +87,32 @@ BOOST_AUTO_TEST_CASE(multiply_to)
     COMPARE_CPLX_N(o, expected, 2);
 }
 
+BOOST_AUTO_TEST_CASE(multiply_and_sum)
+{
+    bq_complex_t a[] = { { 1.0, 2.0 }, { 3.0, -4.0 } };
+    bq_complex_t b[] = { { -1.0, 3.0 }, { -4.5, 0.0 } };
+    bq_complex_t o = v_multiply_and_sum(a, b, 2);
+    bq_complex_t expected = { -20.5, 19.0 };
+    COMPARE_CPLX_N((&o), (&expected), 1);
+}
+
 BOOST_AUTO_TEST_CASE(divide)
 {
     bq_complex_t a[] = { { 0.0, 0.0 }, { 1.0, 0.0 }, { 1.0, 0.0 }, { -1.0, 0.0 }, { 0.0, 1.0 }, { 2.0, -1000.5 } };
-    bq_complex_t b[] = { { 1.0, 0.0 }, { 1.0, 0.0 }, { 0.0, 1.0 }, { 1.0, 0.0 }, { 0.0, 1.0 }, { 0.4, 2.0 } };
+    bq_complex_t b[] = { { 1.0, 0.0 }, { 1.0, 0.0 }, { 0.0, 1.0 }, { 0.0, 1.0 }, { 0.0, 1.0 }, { 0.4, 2.0 } };
     bq_complex_t expected[] = { { 0.0, 0.0 }, { 1.0, 0.0 }, { 0.0, -1.0 }, { 0.0, 1.0 }, { 1.0, 0.0 }, { -480.817307692, -97.16346154 } };
-    v_divide(a, b, 2);
-    COMPARE_CPLX_N(a, expected, 2);
+    v_divide(a, b, 6);
+    COMPARE_CPLX_N_APPROX(a, expected, 6);
 }
 
 BOOST_AUTO_TEST_CASE(divide_to)
 {
     bq_complex_t a[] = { { 0.0, 0.0 }, { 1.0, 0.0 }, { 1.0, 0.0 }, { -1.0, 0.0 }, { 0.0, 1.0 }, { 2.0, -1000.5 } };
-    bq_complex_t b[] = { { 1.0, 0.0 }, { 1.0, 0.0 }, { 0.0, 1.0 }, { 1.0, 0.0 }, { 0.0, 1.0 }, { 0.4, 2.0 } };
+    bq_complex_t b[] = { { 1.0, 0.0 }, { 1.0, 0.0 }, { 0.0, 1.0 }, { 0.0, 1.0 }, { 0.0, 1.0 }, { 0.4, 2.0 } };
     bq_complex_t o[6];
     bq_complex_t expected[] = { { 0.0, 0.0 }, { 1.0, 0.0 }, { 0.0, -1.0 }, { 0.0, 1.0 }, { 1.0, 0.0 }, { -480.817307692, -97.16346154 } };
-    v_divide_to(o, a, b, 2);
-    COMPARE_CPLX_N(o, expected, 2);
+    v_divide_to(o, a, b, 6);
+    COMPARE_CPLX_N_APPROX(o, expected, 6);
 }
 
 BOOST_AUTO_TEST_CASE(cartesian_to_magnitudes_bq)

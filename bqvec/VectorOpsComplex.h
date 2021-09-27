@@ -232,7 +232,7 @@ inline void v_multiply(bq_complex_t *const BQ_R__ srcdst,
                        const bq_complex_t *const BQ_R__ src,
                        const int count)
 {
-#ifdef HAVE_IPP
+#if defined HAVE_IPP
     if (sizeof(bq_complex_element_t) == sizeof(float)) {
         ippsMul_32fc_I((const Ipp32fc *)src, (Ipp32fc *)srcdst, count);
     } else {
@@ -251,7 +251,7 @@ inline void v_multiply_to(bq_complex_t *const BQ_R__ dst,
                           const bq_complex_t *const BQ_R__ src2,
                           const int count)
 {
-#ifdef HAVE_IPP
+#if defined HAVE_IPP
     if (sizeof(bq_complex_element_t) == sizeof(float)) {
         ippsMul_32fc((const Ipp32fc *)src1, (const Ipp32fc *)src2,
                      (Ipp32fc *)dst, count);
@@ -259,11 +259,31 @@ inline void v_multiply_to(bq_complex_t *const BQ_R__ dst,
         ippsMul_64fc((const Ipp64fc *)src1, (const Ipp64fc *)src2,
                      (Ipp64fc *)dst, count);
     }
+#elif defined HAVE_VDSP
+    if (sizeof(bq_complex_element_t) == sizeof(float)) {
+        DSPSplitComplex sdst, ssrc1, ssrc2;
+        sdst.realp = (float *)dst;
+        sdst.imagp = sdst.realp + 1;
+        ssrc1.realp = (float *)src1;
+        ssrc1.imagp = ssrc1.realp + 1;
+        ssrc2.realp = (float *)src2;
+        ssrc2.imagp = ssrc2.realp + 1;
+        vDSP_zvmul(&ssrc1, 2, &ssrc2, 2, &sdst, 2, count, 1);
+    } else {
+        DSPDoubleSplitComplex sdst, ssrc1, ssrc2;
+        sdst.realp = (double *)dst;
+        sdst.imagp = sdst.realp + 1;
+        ssrc1.realp = (double *)src1;
+        ssrc1.imagp = ssrc1.realp + 1;
+        ssrc2.realp = (double *)src2;
+        ssrc2.imagp = ssrc2.realp + 1;
+        vDSP_zvmulD(&ssrc1, 2, &ssrc2, 2, &sdst, 2, count, 1);
+    }
 #else
     for (int i = 0; i < count; ++i) {
         c_multiply(dst[i], src1[i], src2[i]);
     }
-#endif // HAVE_IPP
+#endif
 }
 
 template<>
@@ -271,7 +291,7 @@ inline void v_divide(bq_complex_t *const BQ_R__ srcdst,
                      const bq_complex_t *const BQ_R__ src,
                      const int count)
 {
-#ifdef HAVE_IPP
+#if defined HAVE_IPP
     if (sizeof(bq_complex_element_t) == sizeof(float)) {
         ippsDiv_32fc_I((const Ipp32fc *)src, (Ipp32fc *)srcdst, count);
     } else {
@@ -290,7 +310,7 @@ inline void v_divide_to(bq_complex_t *const BQ_R__ dst,
                         const bq_complex_t *const BQ_R__ src2,
                         const int count)
 {
-#ifdef HAVE_IPP
+#if defined HAVE_IPP
     if (sizeof(bq_complex_element_t) == sizeof(float)) {
         ippsDiv_32fc((const Ipp32fc *)src1, (const Ipp32fc *)src2,
                      (Ipp32fc *)dst, count);
@@ -298,11 +318,31 @@ inline void v_divide_to(bq_complex_t *const BQ_R__ dst,
         ippsDiv_64fc((const Ipp64fc *)src1, (const Ipp64fc *)src2,
                      (Ipp64fc *)dst, count);
     }
+#elif defined HAVE_VDSP
+    if (sizeof(bq_complex_element_t) == sizeof(float)) {
+        DSPSplitComplex sdst, ssrc1, ssrc2;
+        sdst.realp = (float *)dst;
+        sdst.imagp = sdst.realp + 1;
+        ssrc1.realp = (float *)src1;
+        ssrc1.imagp = ssrc1.realp + 1;
+        ssrc2.realp = (float *)src2;
+        ssrc2.imagp = ssrc2.realp + 1;
+        vDSP_zvdiv(&ssrc2, 2, &ssrc1, 2, &sdst, 2, count);
+    } else {
+        DSPDoubleSplitComplex sdst, ssrc1, ssrc2;
+        sdst.realp = (double *)dst;
+        sdst.imagp = sdst.realp + 1;
+        ssrc1.realp = (double *)src1;
+        ssrc1.imagp = ssrc1.realp + 1;
+        ssrc2.realp = (double *)src2;
+        ssrc2.imagp = ssrc2.realp + 1;
+        vDSP_zvdivD(&ssrc2, 2, &ssrc1, 2, &sdst, 2, count);
+    }
 #else
     for (int i = 0; i < count; ++i) {
         c_divide(dst[i], src1[i], src2[i]);
     }
-#endif // HAVE_IPP
+#endif
 }
 
 template<>
@@ -311,7 +351,7 @@ inline void v_multiply_and_add(bq_complex_t *const BQ_R__ srcdst,
                                const bq_complex_t *const BQ_R__ src2,
                                const int count)
 {
-#ifdef HAVE_IPP
+#if defined HAVE_IPP
     if (sizeof(bq_complex_element_t) == sizeof(float)) {
         ippsAddProduct_32fc((const Ipp32fc *)src1, (const Ipp32fc *)src2,
                             (Ipp32fc *)srcdst, count);
@@ -332,13 +372,33 @@ inline bq_complex_t v_multiply_and_sum(const bq_complex_t *const BQ_R__ src1,
                                        const int count)
 {
     bq_complex_t result = bq_complex_t();
-#ifdef HAVE_IPP
+#if defined HAVE_IPP
     if (sizeof(bq_complex_element_t) == sizeof(float)) {
         ippsDotProd_32fc((const Ipp32fc *)src1, (const Ipp32fc *)src2,
                          count, (Ipp32fc *)&result);
     } else {
         ippsDotProd_64fc((const Ipp64fc *)src1, (const Ipp64fc *)src2,
                          count, (Ipp64fc *)&result);
+    }
+#elif defined HAVE_VDSP
+    if (sizeof(bq_complex_element_t) == sizeof(float)) {
+        DSPSplitComplex sdst, ssrc1, ssrc2;
+        sdst.realp = (float *)&result;
+        sdst.imagp = sdst.realp + 1;
+        ssrc1.realp = (float *)src1;
+        ssrc1.imagp = ssrc1.realp + 1;
+        ssrc2.realp = (float *)src2;
+        ssrc2.imagp = ssrc2.realp + 1;
+        vDSP_zdotpr(&ssrc1, 2, &ssrc2, 2, &sdst, count);
+    } else {
+        DSPDoubleSplitComplex sdst, ssrc1, ssrc2;
+        sdst.realp = (double *)&result;
+        sdst.imagp = sdst.realp + 1;
+        ssrc1.realp = (double *)src1;
+        ssrc1.imagp = ssrc1.realp + 1;
+        ssrc2.realp = (double *)src2;
+        ssrc2.imagp = ssrc2.realp + 1;
+        vDSP_zdotprD(&ssrc1, 2, &ssrc2, 2, &sdst, count);
     }
 #else
     bq_complex_t out = bq_complex_t();
@@ -398,7 +458,7 @@ inline void c_magphase(T *mag, T *phase, T real, T imag)
     *phase = atan2(imag, real);
 }
 
-#ifdef USE_APPROXIMATE_ATAN2
+#if defined USE_APPROXIMATE_ATAN2
 // NB arguments in opposite order from usual for atan2f
 extern float approximate_atan2f(float real, float imag);
 template<>
@@ -506,7 +566,7 @@ void v_polar_to_cartesian_interleaved(T *const BQ_R__ dst,
     }
 }    
 
-#ifdef HAVE_IPP
+#if defined HAVE_IPP
 template<>
 inline void v_polar_to_cartesian(float *const BQ_R__ real,
                                  float *const BQ_R__ imag,
@@ -609,7 +669,7 @@ void v_cartesian_interleaved_to_polar(T *const BQ_R__ mag,
     }
 }
 
-#ifdef HAVE_IPP
+#if defined HAVE_IPP
 
 template<>
 inline void v_cartesian_to_polar(float *const BQ_R__ mag,
@@ -716,7 +776,7 @@ void v_cartesian_interleaved_to_magnitudes(T *const BQ_R__ mag,
     }
 }
 
-#ifdef HAVE_IPP
+#if defined HAVE_IPP
 template<>
 inline void v_cartesian_to_magnitudes(float *const BQ_R__ mag,
                                       const float *const BQ_R__ real,

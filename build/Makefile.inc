@@ -24,7 +24,7 @@ LIBRARY	:= libbqvec.a
 all:	$(LIBRARY) timings
 
 test:	$(LIBRARY) timings test-allocators test-vectorops test-vectorops-complex
-	./test-allocators && ./test-vectorops && ./test-vectorops-complex
+	DYLD_LIBRARY_PATH=/opt/boost/lib ./test-allocators && DYLD_LIBRARY_PATH=/opt/boost/lib ./test-vectorops && DYLD_LIBRARY_PATH=/opt/boost/lib ./test-vectorops-complex
 
 valgrind:	$(LIBRARY) timings test-allocators test-vectorops test-vectorops-complex
 	valgrind ./test-allocators && valgrind ./test-vectorops && valgrind ./test-vectorops-complex
@@ -36,13 +36,13 @@ timings: $(TIMINGS_OBJECTS) $(LIBRARY)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(THIRD_PARTY_LIBS)
 
 test-allocators:	test/TestAllocators.o $(LIBRARY)
-	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework -L. -lbqvec $(THIRD_PARTY_LIBS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ -L. -lbqvec $(THIRD_PARTY_LIBS) -lboost_unit_test_framework
 
 test-vectorops:	test/TestVectorOps.o $(LIBRARY)
-	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework -L. -lbqvec $(THIRD_PARTY_LIBS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ -L. -lbqvec $(THIRD_PARTY_LIBS) -lboost_unit_test_framework
 
 test-vectorops-complex:	test/TestVectorOpsComplex.o $(LIBRARY)
-	$(CXX) $(CXXFLAGS) -o $@ $^ -lboost_unit_test_framework -L. -lbqvec $(THIRD_PARTY_LIBS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ -L. -lbqvec $(THIRD_PARTY_LIBS) -lboost_unit_test_framework
 
 clean:		
 	rm -f $(OBJECTS) $(TEST_OBJECTS) $(TIMINGS_OBJECTS)
