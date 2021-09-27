@@ -312,10 +312,10 @@ inline void v_divide_to(bq_complex_t *const BQ_R__ dst,
 {
 #if defined HAVE_IPP
     if (sizeof(bq_complex_element_t) == sizeof(float)) {
-        ippsDiv_32fc((const Ipp32fc *)src1, (const Ipp32fc *)src2,
+        ippsDiv_32fc((const Ipp32fc *)src2, (const Ipp32fc *)src1,
                      (Ipp32fc *)dst, count);
     } else {
-        ippsDiv_64fc((const Ipp64fc *)src1, (const Ipp64fc *)src2,
+        ippsDiv_64fc((const Ipp64fc *)src2, (const Ipp64fc *)src1,
                      (Ipp64fc *)dst, count);
     }
 #elif defined HAVE_VDSP
