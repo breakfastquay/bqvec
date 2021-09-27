@@ -20,11 +20,14 @@ BOOST_AUTO_TEST_SUITE(TestVectorOpsComplex)
 
 #ifdef USE_APPROXIMATE_ATAN2
 static const double eps = 5.0e-3;
+static const double eps_approx = eps;
 #else
 #ifdef USE_SINGLE_PRECISION_COMPLEX
 static const double eps = 1.0e-7;
+static const double eps_approx = 1.0e-5;
 #else
 static const double eps = 1.0e-14;
+static const double eps_approx = 1.0e-8;
 #endif
 #endif
     
@@ -46,8 +49,8 @@ static const double eps = 1.0e-14;
 
 #define COMPARE_CPLX_N_APPROX(a, b, n)						\
     for (int cmp_i = 0; cmp_i < n; ++cmp_i) { \
-        BOOST_CHECK_SMALL(a[cmp_i].re - b[cmp_i].re, (bq_complex_element_t) 1e-7); \
-        BOOST_CHECK_SMALL(a[cmp_i].im - b[cmp_i].im, (bq_complex_element_t) 1e-7); \
+        BOOST_CHECK_SMALL(a[cmp_i].re - b[cmp_i].re, (bq_complex_element_t) eps_approx); \
+        BOOST_CHECK_SMALL(a[cmp_i].im - b[cmp_i].im, (bq_complex_element_t) eps_approx); \
     }
 
 BOOST_AUTO_TEST_CASE(add)
