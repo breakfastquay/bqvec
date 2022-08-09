@@ -145,7 +145,7 @@ T *allocate(size_t count)
     // Alignment must be a power of two, bigger than the pointer
     // size. Stuff the actual malloc'd pointer in just before the
     // returned value.  This is the least desirable way to do this --
-    // the other options below are all better
+    // the other options are all better
     size_t allocd = count * sizeof(T) + alignment;
     void *buf = malloc(allocd);
     if (buf) {

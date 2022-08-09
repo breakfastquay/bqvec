@@ -221,60 +221,6 @@ v_polar_to_cartesian_interleaved_pommier(float *const BQ_R__ dst,
 
 #ifndef NO_COMPLEX_TYPES
 
-void
-v_polar_to_cartesian(bq_complex_t *const BQ_R__ dst,
-		     const bq_complex_element_t *const BQ_R__ mag,
-		     const bq_complex_element_t *const BQ_R__ phase,
-		     const int count)
-{
-    if (sizeof(bq_complex_element_t) == sizeof(float)) {
-        v_polar_to_cartesian_interleaved((float *)dst,
-                                         (const float *)mag,
-                                         (const float *)phase,
-                                         count);
-    } else {
-        v_polar_to_cartesian_interleaved((double *)dst,
-                                         (const double *)mag,
-                                         (const double *)phase,
-                                         count);
-    }
-}
-
-void
-v_cartesian_to_polar(bq_complex_element_t *const BQ_R__ mag,
-                     bq_complex_element_t *const BQ_R__ phase,
-                     const bq_complex_t *const BQ_R__ src,
-                     const int count)
-{
-    if (sizeof(bq_complex_element_t) == sizeof(float)) {
-        v_cartesian_interleaved_to_polar((float *)mag,
-                                         (float *)phase,
-                                         (const float *)src,
-                                         count);
-    } else {
-        v_cartesian_interleaved_to_polar((double *)mag,
-                                         (double *)phase,
-                                         (const double *)src,
-                                         count);
-    }
-}
-
-void
-v_cartesian_to_magnitudes(bq_complex_element_t *const BQ_R__ mag,
-                          const bq_complex_t *const BQ_R__ src,
-                          const int count)
-{
-    if (sizeof(bq_complex_element_t) == sizeof(float)) {
-        v_cartesian_interleaved_to_magnitudes((float *)mag,
-                                              (const float *)src,
-                                              count);
-    } else {
-        v_cartesian_interleaved_to_magnitudes((double *)mag,
-                                              (const double *)src,
-                                              count);
-    }
-}
-
 #if defined USE_POMMIER_MATHFUN
 
 //!!! further tests reqd.  This is only single precision but it seems
