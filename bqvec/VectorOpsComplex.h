@@ -422,6 +422,16 @@ inline void c_phasor(T *real, T *imag, T phase)
     } else {
         vvsincos((double *)imag, (double *)real, (const double *)&phase, &one);
     }
+#elif defined HAVE_SLEEF
+    if (sizeof(T) == sizeof(float)) {
+        Sleef_float2 out = Sleef_sincosf_u10(float(phase));
+        *imag = out.x;
+        *real = out.y;
+    } else {
+        Sleef_double2 out = Sleef_sincos_u10(double(phase));
+        *imag = out.x;
+        *real = out.y;
+    }
 #elif defined LACK_SINCOS
     if (sizeof(T) == sizeof(float)) {
         *real = cosf(phase);
@@ -454,8 +464,18 @@ inline void c_phasor(T *real, T *imag, T phase)
 template<typename T>
 inline void c_magphase(T *mag, T *phase, T real, T imag)
 {
+#if defined HAVE_SLEEF
+    if (sizeof(T) == sizeof(float)) {
+        *mag = Sleef_sqrtf_u05(real * real + imag * imag);
+        *phase = Sleef_atan2f_u10(imag, real);
+    } else {
+        *mag = Sleef_sqrt_u35(real * real + imag * imag);
+        *phase = Sleef_atan2_u35(imag, real);
+    }
+#else
     *mag = sqrt(real * real + imag * imag);
     *phase = atan2(imag, real);
+#endif
 }
 
 #if defined USE_APPROXIMATE_ATAN2

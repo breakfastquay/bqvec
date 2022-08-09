@@ -53,6 +53,12 @@
 #include <alloca.h>
 #endif
 
+#ifdef HAVE_SLEEF
+extern "C" {
+#include <sleef.h>
+}
+#endif
+
 #include <cstring>
 #include <cmath>
 
@@ -886,6 +892,23 @@ inline void v_log(double *const BQ_R__ srcdst,
 {
     ippsLn_64f_I(srcdst, count);
 }
+#elif defined HAVE_SLEEF
+template<>
+inline void v_log(float *const BQ_R__ srcdst,
+                  const int count)
+{
+    for (int i = 0; i < count; ++i) {
+        srcdst[i] = Sleef_logf_u10(srcdst[i]);
+    }
+}
+template<>
+inline void v_log(double *const BQ_R__ srcdst,
+                  const int count)
+{
+    for (int i = 0; i < count; ++i) {
+        srcdst[i] = Sleef_log_u10(srcdst[i]);
+    }
+}
 #elif defined HAVE_VDSP
 // no in-place vForce functions for these -- can we use the
 // out-of-place functions with equal input and output vectors? can we
@@ -937,6 +960,23 @@ inline void v_exp(double *const BQ_R__ srcdst,
 {
     ippsExp_64f_I(srcdst, count);
 }
+#elif defined HAVE_SLEEF
+template<>
+inline void v_exp(float *const BQ_R__ srcdst,
+                  const int count)
+{
+    for (int i = 0; i < count; ++i) {
+        srcdst[i] = Sleef_expf_u10(srcdst[i]);
+    }
+}
+template<>
+inline void v_exp(double *const BQ_R__ srcdst,
+                  const int count)
+{
+    for (int i = 0; i < count; ++i) {
+        srcdst[i] = Sleef_exp_u10(srcdst[i]);
+    }
+}
 #elif defined HAVE_VDSP
 // no in-place vForce functions for these -- can we use the
 // out-of-place functions with equal input and output vectors? can we
@@ -987,6 +1027,23 @@ inline void v_sqrt(double *const BQ_R__ srcdst,
                    const int count)
 {
     ippsSqrt_64f_I(srcdst, count);
+}
+#elif defined HAVE_SLEEF
+template<>
+inline void v_sqrt(float *const BQ_R__ srcdst,
+                  const int count)
+{
+    for (int i = 0; i < count; ++i) {
+        srcdst[i] = Sleef_sqrtf_u05(srcdst[i]);
+    }
+}
+template<>
+inline void v_sqrt(double *const BQ_R__ srcdst,
+                  const int count)
+{
+    for (int i = 0; i < count; ++i) {
+        srcdst[i] = Sleef_sqrt_u05(srcdst[i]);
+    }
 }
 #elif defined HAVE_VDSP
 // no in-place vForce functions for these -- can we use the
