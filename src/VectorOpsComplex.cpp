@@ -6,7 +6,7 @@
     A small library for vector arithmetic and allocation in C++ using
     raw C pointer arrays.
 
-    Copyright 2007-2021 Particular Programs Ltd.
+    Copyright 2007-2022 Particular Programs Ltd.
 
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
@@ -57,40 +57,6 @@
 using namespace std;
 
 namespace breakfastquay {
-
-#ifdef USE_APPROXIMATE_ATAN2
-float approximate_atan2f(float real, float imag)
-{
-    static const float pi = M_PI;
-    static const float pi2 = M_PI / 2;
-
-    float atan;
-
-    if (real == 0.f) {
-
-        if (imag > 0.0f) atan = pi2;
-        else if (imag == 0.0f) atan = 0.0f;
-        else atan = -pi2;
-
-    } else {
-
-        float z = imag/real;
-
-        if (fabsf(z) < 1.f) {
-            atan = z / (1.f + 0.28f * z * z);
-            if (real < 0.f) {
-                if (imag < 0.f) atan -= pi;
-                else atan += pi;
-            }
-        } else {
-            atan = pi2 - z / (z * z + 0.28f);
-            if (imag < 0.f) atan -= pi;
-        }
-    }
-
-    return atan;
-}
-#endif
 
 #if defined USE_POMMIER_MATHFUN
 
@@ -221,34 +187,42 @@ v_polar_to_cartesian_interleaved_pommier(float *const BQ_R__ dst,
 
 #if defined USE_POMMIER_MATHFUN
 
-//!!! further tests reqd.  This is only single precision but it seems
-//!!! to be much faster than normal math library sincos.  The comments
-//!!! note that precision suffers for high arguments to sincos though,
-//!!! and that is probably a common case for us
-
 void
 v_polar_interleaved_to_cartesian(bq_complex_t *const BQ_R__ dst,
 				 const bq_complex_element_t *const BQ_R__ src,
 				 const int count)
 {
-    int idx = 0, tidx = 0;
+    if (sizeof(bq_complex_element_t) == sizeof(float)) {
+    
+        int idx = 0, tidx = 0;
 
-    for (int i = 0; i < count; i += 4) {
+        for (int i = 0; i < count; i += 4) {
 
-	V4SF fmag, fphase, fre, fim;
+            V4SF fmag, fphase, fre, fim;
 
-        for (int j = 0; j < 3; ++j) {
-            fmag.f[j] = src[idx++];
-            fphase.f[j] = src[idx++];
+            for (int j = 0; j < 3; ++j) {
+                fmag.f[j] = src[idx++];
+                fphase.f[j] = src[idx++];
+            }
+
+            sincos_ps(fphase.v, &fim.v, &fre.v);
+
+            for (int j = 0; j < 3; ++j) {
+                dst[tidx].re = fre.f[j] * fmag.f[j];
+                dst[tidx++].im = fim.f[j] * fmag.f[j];
+            }
         }
-
-	sincos_ps(fphase.v, &fim.v, &fre.v);
-
-        for (int j = 0; j < 3; ++j) {
-            dst[tidx].re = fre.f[j] * fmag.f[j];
-            dst[tidx++].im = fim.f[j] * fmag.f[j];
+    } else {
+        bq_complex_element_t mag, phase;
+        int idx = 0;
+        for (int i = 0; i < count; ++i) {
+            mag = src[idx++];
+            phase = src[idx++];
+            dst[i] = c_phasor(phase);
+            dst[i].re *= mag;
+            dst[i].im *= mag;
         }
-    }
+    }        
 }    
 
 #elif (defined HAVE_IPP || defined HAVE_VDSP)

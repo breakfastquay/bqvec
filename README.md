@@ -33,6 +33,6 @@ C++ standard required: C++98 (does not use C++11 or newer features)
 
 [![Build status](https://builds.sr.ht/~breakfastquay/bqvec.svg)](https://builds.sr.ht/~breakfastquay/bqvec?)
 
-Copyright 2007-2021 Particular Programs Ltd. See the file COPYING for
+Copyright 2007-2022 Particular Programs Ltd. See the file COPYING for
 (BSD/MIT-style) licence terms.
 

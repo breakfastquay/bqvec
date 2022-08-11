@@ -6,17 +6,16 @@
 #
 #  -DHAVE_IPP    Intel's Integrated Performance Primitives are available
 #  -DHAVE_VDSP   Apple's Accelerate framework is available
+#  -DHAVE_SLEEF  The SLEEF Vectorized Math Library is available
 #
 # The above are optional (they affect performance, not function) and
 # you may define more than one of them.
 #
-# The following two options trade off speed against precision for single-
+# The following option trades off speed against precision for single-
 # precision paths in cases where IPP and VDSP are not available:
 #
 #  -DUSE_POMMIER_MATHFUN Use Julien Pommier's SSE/NEON implementation
 #   of sincos in 32-bit polar-to-cartesian conversion
-#  -DUSE_APPROXIMATE_ATAN2 Use a quick but *very* approximate atan2
-#   function in 32-bit cartesian-to-polar conversion
 #
 # And a handful of miscellaneous flags:
 #

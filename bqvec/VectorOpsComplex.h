@@ -6,7 +6,7 @@
     A small library for vector arithmetic and allocation in C++ using
     raw C pointer arrays.
 
-    Copyright 2007-2021 Particular Programs Ltd.
+    Copyright 2007-2022 Particular Programs Ltd.
 
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
@@ -460,24 +460,12 @@ inline void c_magphase(T *mag, T *phase, T real, T imag)
     *phase = atan2(imag, real);
 }
 
-#if defined USE_APPROXIMATE_ATAN2
-// NB arguments in opposite order from usual for atan2f
-extern float approximate_atan2f(float real, float imag);
-template<>
-inline void c_magphase(float *mag, float *phase, float real, float imag)
-{
-    float atan = approximate_atan2f(real, imag);
-    *phase = atan;
-    *mag = sqrtf(real * real + imag * imag);
-}
-#else // !USE_APPROXIMATE_ATAN2
 template<>
 inline void c_magphase(float *mag, float *phase, float real, float imag)
 {
     *mag = sqrtf(real * real + imag * imag);
     *phase = atan2f(imag, real);
 }
-#endif
 
 template<typename S, typename T> // S source, T target
 void v_polar_to_cartesian(T *const BQ_R__ real,
