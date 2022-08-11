@@ -89,12 +89,6 @@
 #include <errno.h>
 #endif
 
-#ifdef HAVE_SLEEF
-extern "C" {
-#include <sleef.h>
-}
-#endif
-
 #ifndef NO_EXCEPTIONS
 #ifdef LACK_BAD_ALLOC
 namespace std {
@@ -116,11 +110,6 @@ T *allocate(size_t count)
     // argument. So we save it for the specialisations of
     // allocate<float> and allocate<double> below, where we're more
     // likely to get away with it.
-
-    // The SLEEF allocator does accept a size_t however
-#ifdef HAVE_SLEEF
-    ptr = Sleef_malloc(count * sizeof(T));
-#else /* !HAVE_SLEEF */
     
 #ifdef MALLOC_IS_ALIGNED
     ptr = malloc(count * sizeof(T));
@@ -169,13 +158,12 @@ T *allocate(size_t count)
 
 #else /* !USE_OWN_ALIGNED_MALLOC */
 
-#error "No aligned malloc available: define MALLOC_IS_ALIGNED to use system malloc, HAVE_POSIX_MEMALIGN if posix_memalign is available, HAVE__ALIGNED_MALLOC if _aligned_malloc is available, HAVE_SLEEF if using the SLEEF library, or USE_OWN_ALIGNED_MALLOC to roll our own"
+#error "No aligned malloc available: define MALLOC_IS_ALIGNED to use system malloc, HAVE_POSIX_MEMALIGN if posix_memalign is available, HAVE__ALIGNED_MALLOC if _aligned_malloc is available, or USE_OWN_ALIGNED_MALLOC to roll our own"
 
 #endif /* !USE_OWN_ALIGNED_MALLOC */
 #endif /* !HAVE_POSIX_MEMALIGN */
 #endif /* !HAVE__ALIGNED_MALLOC */
 #endif /* !MALLOC_IS_ALIGNED */
-#endif /* !HAVE_SLEEF */
 
     if (!ptr) {
 #ifndef NO_EXCEPTIONS
@@ -217,10 +205,6 @@ void deallocate(T *ptr)
 {
     if (!ptr) return;
 
-#ifdef HAVE_SLEEF
-    Sleef_free((void *)ptr);
-#else /* !HAVE_SLEEF */
-    
 #ifdef MALLOC_IS_ALIGNED
     free((void *)ptr);
 #else /* !MALLOC_IS_ALIGNED */
@@ -237,13 +221,12 @@ void deallocate(T *ptr)
     free(((void **)ptr)[-1]);
 #else /* !USE_OWN_ALIGNED_MALLOC */
 
-#error "No aligned malloc available: define MALLOC_IS_ALIGNED to use system malloc, HAVE_POSIX_MEMALIGN if posix_memalign is available, HAVE__ALIGNED_MALLOC if _aligned_malloc is available, HAVE_SLEEF if using the SLEEF library, or USE_OWN_ALIGNED_MALLOC to roll our own"
+#error "No aligned malloc available: define MALLOC_IS_ALIGNED to use system malloc, HAVE_POSIX_MEMALIGN if posix_memalign is available, HAVE__ALIGNED_MALLOC if _aligned_malloc is available, or USE_OWN_ALIGNED_MALLOC to roll our own"
 
 #endif /* !USE_OWN_ALIGNED_MALLOC */
 #endif /* !HAVE_POSIX_MEMALIGN */
 #endif /* !HAVE__ALIGNED_MALLOC */
 #endif /* !MALLOC_IS_ALIGNED */
-#endif /* !HAVE_SLEEF */
 }
 
 #ifdef HAVE_IPP
