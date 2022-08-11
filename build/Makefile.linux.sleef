@@ -6,5 +6,7 @@ ALLOCATOR_DEFINES 	:= -DHAVE_POSIX_MEMALIGN
 THIRD_PARTY_INCLUDES	:= -I/usr/local/include
 THIRD_PARTY_LIBS	:= -L/usr/local/lib -lsleef
 
+OPTFLAGS                := -O3 -ffast-math -flto -march=native
+
 include build/Makefile.inc
 

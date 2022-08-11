@@ -225,9 +225,9 @@ testPolarToCartInterleaved()
 }
 
 bool
-testCartToPolar()
+testCartToPolarComplexTypes()
 {
-    cerr << "testVectorOps: testing v_cartesian_to_polar" << endl;
+    cerr << "testVectorOps: testing v_cartesian_to_polar [complex types]" << endl;
 
     const int iterations = 50000;
     const int N = 1024;
@@ -289,12 +289,80 @@ testCartToPolar()
     return true;
 }
 
+bool
+testCartToPolar()
+{
+    cerr << "testVectorOps: testing v_cartesian_to_polar" << endl;
+
+    const int iterations = 50000;
+    const int N = 1024;
+
+    bq_complex_element_t *real = allocate<bq_complex_element_t>(N);
+    bq_complex_element_t *imag = allocate<bq_complex_element_t>(N);
+    bq_complex_element_t *mag = allocate<bq_complex_element_t>(N);
+    bq_complex_element_t *phase = allocate<bq_complex_element_t>(N);
+
+    for (int i = 0; i < N; ++i) {
+        real[i] = (drand48() * 2.0) - 1.0;
+        imag[i] = (drand48() * 2.0) - 1.0;
+    }
+
+    float divisor = float(CLOCKS_PER_SEC) / 1000.f;
+    clock_t start = clock();
+
+    double first, last, total = 0;
+    for (int j = 0; j < iterations; ++j) {
+        for (int i = 0; i < N; ++i) {
+            double mag = sqrt(real[i] * real[i] + imag[i] * imag[i]);
+            double phase = atan2(imag[i], real[i]);
+            if (i == 0) first = mag;
+            if (i == N-1) last = phase;
+            total += mag;
+            total += j * phase;
+        }
+    }
+    
+    clock_t end = clock();
+
+    cerr << "naive method: first = " << first << ", last = " << last
+         << ", total = " << total << endl;
+    cerr << "time for naive method: " << float(end - start)/divisor << endl;
+
+    start = clock();
+
+    first = last = total = 0;
+    for (int j = 0; j < iterations; ++j) {
+        v_cartesian_to_polar(mag, phase, real, imag, N);
+        for (int i = 0; i < N; ++i) {
+            if (i == 0) first = mag[i];
+            if (i == N-1) last = phase[i];
+            total += mag[i];
+            total += j * phase[i];
+        }
+    }
+
+    end = clock();
+
+    cerr << "v_cartesian_to_polar: first = " << first << ", last = " << last
+         << ", total = " << total << endl;
+    cerr << "time for v_cartesian_to_polar: " << float(end - start)/divisor << endl;
+
+    deallocate(real);
+    deallocate(imag);
+    deallocate(mag);
+    deallocate(phase);
+    
+    cerr << endl;
+    return true;
+}
+
 int main(int, char **)
 {
     cerr << endl;
     if (!testMultiply()) return 1;
     if (!testPolarToCart()) return 1;
     if (!testPolarToCartInterleaved()) return 1;
+    if (!testCartToPolarComplexTypes()) return 1;
     if (!testCartToPolar()) return 1;
     return 0;
 }

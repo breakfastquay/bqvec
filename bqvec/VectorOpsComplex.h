@@ -41,6 +41,8 @@
 
 #include <cmath>
 
+#include <iostream>
+
 namespace breakfastquay {
 
 #ifndef NO_COMPLEX_TYPES
@@ -422,16 +424,6 @@ inline void c_phasor(T *real, T *imag, T phase)
     } else {
         vvsincos((double *)imag, (double *)real, (const double *)&phase, &one);
     }
-#elif defined HAVE_SLEEF
-    if (sizeof(T) == sizeof(float)) {
-        Sleef_float2 out = Sleef_sincosf_u10(float(phase));
-        *imag = out.x;
-        *real = out.y;
-    } else {
-        Sleef_double2 out = Sleef_sincos_u10(double(phase));
-        *imag = out.x;
-        *real = out.y;
-    }
 #elif defined LACK_SINCOS
     if (sizeof(T) == sizeof(float)) {
         *real = cosf(phase);
@@ -464,18 +456,8 @@ inline void c_phasor(T *real, T *imag, T phase)
 template<typename T>
 inline void c_magphase(T *mag, T *phase, T real, T imag)
 {
-#if defined HAVE_SLEEF
-    if (sizeof(T) == sizeof(float)) {
-        *mag = Sleef_sqrtf_u05(real * real + imag * imag);
-        *phase = Sleef_atan2f_u10(imag, real);
-    } else {
-        *mag = Sleef_sqrt_u35(real * real + imag * imag);
-        *phase = Sleef_atan2_u35(imag, real);
-    }
-#else
     *mag = sqrt(real * real + imag * imag);
     *phase = atan2(imag, real);
-#endif
 }
 
 #if defined USE_APPROXIMATE_ATAN2
@@ -682,6 +664,62 @@ inline void v_cartesian_interleaved_to_polar(double *const BQ_R__ mag,
                                              const int count)
 {
     ippsCartToPolar_64fc((const Ipp64fc *)src, mag, phase, count);
+}
+
+#elif defined HAVE_SLEEF
+
+extern void concrete_v_cartesian_to_polar_f
+(float *const BQ_R__, float *const BQ_R__,
+ const float *const BQ_R__, const float *const BQ_R__, const int);
+
+extern void concrete_v_cartesian_interleaved_to_polar_f
+(float *const BQ_R__, float *const BQ_R__,
+ const float *const BQ_R__, const int);
+
+extern void concrete_v_cartesian_to_polar_d
+(double *const BQ_R__, double *const BQ_R__,
+ const double *const BQ_R__, const double *const BQ_R__, const int);
+
+extern void concrete_v_cartesian_interleaved_to_polar_d
+(double *const BQ_R__, double *const BQ_R__,
+ const double *const BQ_R__, const int);
+
+template<>
+inline void v_cartesian_to_polar(float *const BQ_R__ mag,
+                                 float *const BQ_R__ phase,
+                                 const float *const BQ_R__ real,
+                                 const float *const BQ_R__ imag,
+                                 const int count)
+{
+    concrete_v_cartesian_to_polar_f(mag, phase, real, imag, count);
+}
+
+template<>
+inline void v_cartesian_interleaved_to_polar(float *const BQ_R__ mag,
+                                             float *const BQ_R__ phase,
+                                             const float *const BQ_R__ src,
+                                             const int count)
+{
+    concrete_v_cartesian_interleaved_to_polar_f(mag, phase, src, count);
+}
+
+template<>
+inline void v_cartesian_to_polar(double *const BQ_R__ mag,
+                                 double *const BQ_R__ phase,
+                                 const double *const BQ_R__ real,
+                                 const double *const BQ_R__ imag,
+                                 const int count)
+{
+    concrete_v_cartesian_to_polar_d(mag, phase, real, imag, count);
+}
+
+template<>
+inline void v_cartesian_interleaved_to_polar(double *const BQ_R__ mag,
+                                             double *const BQ_R__ phase,
+                                             const double *const BQ_R__ src,
+                                             const int count)
+{
+    concrete_v_cartesian_interleaved_to_polar_d(mag, phase, src, count);
 }
 
 #elif defined HAVE_VDSP

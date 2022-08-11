@@ -15,9 +15,9 @@ TIMINGS_OBJECTS	:= $(TIMINGS_SOURCES:.cpp=.o)
 TEST_SOURCES	:= $(wildcard $(TEST_DIR)/*.cpp)
 TEST_OBJECTS	:= $(TEST_SOURCES:.cpp=.o)
 
-OPTFLAGS := -O3 -ffast-math
+OPTFLAGS ?= -O3 -ffast-math
 
-CXXFLAGS := -std=c++98 -fpic -Wall -Wextra -Werror $(VECTOR_DEFINES) $(ALLOCATOR_DEFINES) -I. $(THIRD_PARTY_INCLUDES) -I$(HEADER_DIR) $(OPTFLAGS)
+CXXFLAGS ?= -std=c++98 -fpic -Wall -Wextra -Werror $(VECTOR_DEFINES) $(ALLOCATOR_DEFINES) -I. $(THIRD_PARTY_INCLUDES) -I$(HEADER_DIR) $(OPTFLAGS)
 
 LIBRARY	:= libbqvec.a
 
