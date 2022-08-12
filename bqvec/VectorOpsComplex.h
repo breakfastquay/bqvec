@@ -550,6 +550,62 @@ inline void v_polar_to_cartesian_interleaved(double *const BQ_R__ dst,
     ippsPolarToCart_64fc(mag, phase, (Ipp64fc *)dst, count);
 }
 
+#elif defined HAVE_SLEEF
+
+extern void concrete_v_polar_to_cartesian_f
+(float *const BQ_R__, float *const BQ_R__,
+ const float *const BQ_R__, const float *const BQ_R__, const int);
+    
+extern void concrete_v_polar_to_cartesian_interleaved_f
+(float *const BQ_R__, const float *const BQ_R__,
+ const float *const BQ_R__, const int);
+    
+extern void concrete_v_polar_to_cartesian_d
+(double *const BQ_R__, double *const BQ_R__,
+ const double *const BQ_R__, const double *const BQ_R__, const int);
+
+extern void concrete_v_polar_to_cartesian_interleaved_d
+(double *const BQ_R__, const double *const BQ_R__,
+ const double *const BQ_R__, const int);
+
+template<>
+inline void v_polar_to_cartesian(float *const BQ_R__ real,
+                                 float *const BQ_R__ imag,
+                                 const float *const BQ_R__ mag,
+                                 const float *const BQ_R__ phase,
+                                 const int count)
+{
+    concrete_v_polar_to_cartesian_f(real, imag, mag, phase, count);
+}    
+    
+template<>
+inline void v_polar_to_cartesian(double *const BQ_R__ real,
+                                 double *const BQ_R__ imag,
+                                 const double *const BQ_R__ mag,
+                                 const double *const BQ_R__ phase,
+                                 const int count)
+{
+    concrete_v_polar_to_cartesian_d(real, imag, mag, phase, count);
+}    
+    
+template<>
+inline void v_polar_to_cartesian_interleaved(float *const BQ_R__ dst,
+                                             const float *const BQ_R__ mag,
+                                             const float *const BQ_R__ phase,
+                                             const int count)
+{
+    concrete_v_polar_to_cartesian_interleaved_f(dst, mag, phase, count);
+}    
+
+template<>
+inline void v_polar_to_cartesian_interleaved(double *const BQ_R__ dst,
+                                             const double *const BQ_R__ mag,
+                                             const double *const BQ_R__ phase,
+                                             const int count)
+{
+    concrete_v_polar_to_cartesian_interleaved_d(dst, mag, phase, count);
+}
+
 #elif defined USE_POMMIER_MATHFUN
 
 void v_polar_to_cartesian_pommier(float *const BQ_R__ real,

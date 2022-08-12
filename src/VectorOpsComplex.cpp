@@ -290,23 +290,179 @@ v_polar_interleaved_to_cartesian_inplace(bq_complex_element_t *const BQ_R__ srcd
 #define BQ_SIMD_n 512
 #define BQ_SIMD_sp __m512
 #define BQ_SIMD_dp __m512d
+#define BQ_SIMD_sp_2 Sleef___m512_2
+#define BQ_SIMD_dp_2 Sleef___m512d_2
 #define BQ_ATAN2_sp Sleef_atan2f16_u10
 #define BQ_ATAN2_dp Sleef_atan2d8_u35
+#define BQ_SINCOS_sp Sleef_sincosf16_u10
+#define BQ_SINCOS_dp Sleef_sincosd8_u10
 #elif defined(__AVX__)
 #define BQ_SIMD_n 256
 #define BQ_SIMD_sp __m256
 #define BQ_SIMD_dp __m256d
+#define BQ_SIMD_sp_2 Sleef___m256_2
+#define BQ_SIMD_dp_2 Sleef___m256d_2
 #define BQ_ATAN2_sp Sleef_atan2f8_u10
 #define BQ_ATAN2_dp Sleef_atan2d4_u35
+#define BQ_SINCOS_sp Sleef_sincosf8_u10
+#define BQ_SINCOS_dp Sleef_sincosd4_u10
 #elif defined(__SSE2__)
 #define BQ_SIMD_n 128
 #define BQ_SIMD_sp __m128
 #define BQ_SIMD_dp __m128d
+#define BQ_SIMD_sp_2 Sleef___m128_2
+#define BQ_SIMD_dp_2 Sleef___m128d_2
 #define BQ_ATAN2_sp Sleef_atan2f4_u10
 #define BQ_ATAN2_dp Sleef_atan2d2_u35
+#define BQ_SINCOS_sp Sleef_sincosf4_u10
+#define BQ_SINCOS_dp Sleef_sincosd2_u10
 #else
 #define BQ_SIMD_n 0
 #endif
+
+void concrete_v_polar_to_cartesian_f(float *const BQ_R__ real,
+                                     float *const BQ_R__ imag,
+                                     const float *const BQ_R__ mag,
+                                     const float *const BQ_R__ phase,
+                                     const int count)
+{
+    int i = 0;
+    const int bytes = BQ_SIMD_n / 8;
+    const int elements = bytes / sizeof(float);
+    if (!BQ_SIMD_n ||
+        ((uintptr_t)real & (bytes - 1)) ||
+        ((uintptr_t)imag & (bytes - 1))) {
+        // No SIMD or unaligned
+        while (i < count) {
+            c_phasor(real + i, imag + i, phase[i]);
+            real[i] *= mag[i];
+            imag[i] *= mag[i];
+            ++i;
+        }
+        return;
+    }
+    while (i + elements < count) {
+        const BQ_SIMD_sp *pp = (const BQ_SIMD_sp *)(phase + i);
+        BQ_SIMD_sp_2 sc = BQ_SINCOS_sp(*pp);
+        for (int j = 0; j < elements; ++j) {
+            real[i+j] = mag[i+j] * ((float *)&(sc.y))[j];
+            imag[i+j] = mag[i+j] * ((float *)&(sc.x))[j];
+        }
+        i += elements;
+    }
+    while (i < count) {
+        c_phasor(real + i, imag + i, phase[i]);
+        real[i] *= mag[i];
+        imag[i] *= mag[i];
+        ++i;
+    }
+}
+
+void concrete_v_polar_to_cartesian_d(double *const BQ_R__ real,
+                                     double *const BQ_R__ imag,
+                                     const double *const BQ_R__ mag,
+                                     const double *const BQ_R__ phase,
+                                     const int count)
+{
+    int i = 0;
+    const int bytes = BQ_SIMD_n / 8;
+    const int elements = bytes / sizeof(double);
+    if (!BQ_SIMD_n || ((uintptr_t)phase & (bytes - 1))) {
+        // No SIMD or unaligned
+        while (i < count) {
+            c_phasor(real + i, imag + i, phase[i]);
+            real[i] *= mag[i];
+            imag[i] *= mag[i];
+            ++i;
+        }
+        return;
+    }
+    while (i + elements < count) {
+        const BQ_SIMD_dp *pp = (const BQ_SIMD_dp *)(phase + i);
+        BQ_SIMD_dp_2 sc = BQ_SINCOS_dp(*pp);
+        for (int j = 0; j < elements; ++j) {
+            real[i+j] = mag[i+j] * ((double *)&(sc.y))[j];
+            imag[i+j] = mag[i+j] * ((double *)&(sc.x))[j];
+        }
+        i += elements;
+    }
+    while (i < count) {
+        c_phasor(real + i, imag + i, phase[i]);
+        real[i] *= mag[i];
+        imag[i] *= mag[i];
+        ++i;
+    }
+}
+
+void concrete_v_polar_to_cartesian_interleaved_f(float *const BQ_R__ dst,
+                                                 const float *const BQ_R__ mag,
+                                                 const float *const BQ_R__ phase,
+                                                 const int count)
+{
+    int i = 0;
+    const int bytes = BQ_SIMD_n / 8;
+    const int elements = bytes / sizeof(float);
+    if (!BQ_SIMD_n || ((uintptr_t)phase & (bytes - 1))) {
+        // No SIMD or unaligned
+        while (i < count) {
+            c_phasor(dst + i*2, dst + i*2 + 1, phase[i]);
+            dst[i*2] *= mag[i];
+            dst[i*2 + 1] *= mag[i];
+            ++i;
+        }
+        return;
+    }
+    while (i + elements < count) {
+        const BQ_SIMD_sp *pp = (const BQ_SIMD_sp *)(phase + i);
+        BQ_SIMD_sp_2 sc = BQ_SINCOS_sp(*pp);
+        for (int j = 0; j < elements; ++j) {
+            dst[(i+j) * 2] = mag[i+j] * ((float *)&(sc.y))[j];
+            dst[(i+j) * 2 + 1] = mag[i+j] * ((float *)&(sc.x))[j];
+        }
+        i += elements;
+    }
+    while (i < count) {
+        c_phasor(dst + i*2, dst + i*2 + 1, phase[i]);
+        dst[i*2] *= mag[i];
+        dst[i*2 + 1] *= mag[i];
+        ++i;
+    }
+}
+
+void concrete_v_polar_to_cartesian_interleaved_d(double *const BQ_R__ dst,
+                                                 const double *const BQ_R__ mag,
+                                                 const double *const BQ_R__ phase,
+                                                 const int count)
+{
+    int i = 0;
+    const int bytes = BQ_SIMD_n / 8;
+    const int elements = bytes / sizeof(double);
+    if (!BQ_SIMD_n || ((uintptr_t)phase & (bytes - 1))) {
+        // No SIMD or unaligned
+        while (i < count) {
+            c_phasor(dst + i*2, dst + i*2 + 1, phase[i]);
+            dst[i*2] *= mag[i];
+            dst[i*2 + 1] *= mag[i];
+            ++i;
+        }
+        return;
+    }
+    while (i + elements < count) {
+        const BQ_SIMD_dp *pp = (const BQ_SIMD_dp *)(phase + i);
+        BQ_SIMD_dp_2 sc = BQ_SINCOS_dp(*pp);
+        for (int j = 0; j < elements; ++j) {
+            dst[(i+j) * 2] = mag[i+j] * ((double *)&(sc.y))[j];
+            dst[(i+j) * 2 + 1] = mag[i+j] * ((double *)&(sc.x))[j];
+        }
+        i += elements;
+    }
+    while (i < count) {
+        c_phasor(dst + i*2, dst + i*2 + 1, phase[i]);
+        dst[i*2] *= mag[i];
+        dst[i*2 + 1] *= mag[i];
+        ++i;
+    }
+}
 
 void concrete_v_cartesian_to_polar_f(float *const BQ_R__ mag,
                                      float *const BQ_R__ phase,
@@ -322,7 +478,7 @@ void concrete_v_cartesian_to_polar_f(float *const BQ_R__ mag,
         ((uintptr_t)imag & (bytes - 1))) {
         // No SIMD or unaligned
         while (i < count) {
-            c_magphase<float>(mag + i, phase + i, real[i], imag[i]);
+            c_magphase(mag + i, phase + i, real[i], imag[i]);
             ++i;
         }
         return;
@@ -353,7 +509,7 @@ void concrete_v_cartesian_interleaved_to_polar_f(float *const BQ_R__ mag,
     const int elements = bytes / sizeof(float);
     if (!BQ_SIMD_n) {
         while (i < count) {
-            c_magphase<float>(mag + i, phase + i, src[i*2], src[i*2+1]);
+            c_magphase(mag + i, phase + i, src[i*2], src[i*2+1]);
             ++i;
         }
         return;
@@ -392,7 +548,7 @@ void concrete_v_cartesian_to_polar_d(double *const BQ_R__ mag,
         ((uintptr_t)imag & (bytes - 1))) {
         // No SIMD or unaligned
         while (i < count) {
-            c_magphase<double>(mag + i, phase + i, real[i], imag[i]);
+            c_magphase(mag + i, phase + i, real[i], imag[i]);
             ++i;
         }
         return;
@@ -423,7 +579,7 @@ void concrete_v_cartesian_interleaved_to_polar_d(double *const BQ_R__ mag,
     const int elements = bytes / sizeof(double);
     if (!BQ_SIMD_n) {
         while (i < count) {
-            c_magphase<double>(mag + i, phase + i, src[i*2], src[i*2+1]);
+            c_magphase(mag + i, phase + i, src[i*2], src[i*2+1]);
             ++i;
         }
         return;
