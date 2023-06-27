@@ -33,7 +33,7 @@
     Software without prior written authorization.
 */
 
-#include "Barrier.h"
+#include "../bqvec/Barrier.h"
 
 #if defined __APPLE__
 #if !defined __MAC_10_12
